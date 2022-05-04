@@ -6,22 +6,27 @@ import MainPage from "./MainPage.jsx";
 import Notfoundpage from "./NotFound404.jsx";
 import LoginPage from "./LoginPage.jsx";
 
-function App() {
+const isAuth = () => localStorage.getItem("token") !== null;
+const UserContext = React.createContext({isAuth});
+
+const App = () => {
     return (
         <>
-            <header>
-                <h1>
-                    <Link to="/">MainPage</Link>
-                    <Link to="/login">SignIn</Link>
-                </h1>
-            </header>
-            <Routes>
-                <Route path="/" element={<MainPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="*" element={<Notfoundpage />} />
-            </Routes>
+            <UserContext.Provider value={isAuth}>
+                <header>
+                    <h1>
+                        <Link to="/">MainPage</Link>
+                        <Link to="/login">SignIn</Link>
+                    </h1>
+                </header>
+                <Routes>
+                    <Route path="/" element={<MainPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="*" element={<Notfoundpage />} />
+                </Routes>
+            </UserContext.Provider>
         </>
     );
-}
+};
 
 export default App;
