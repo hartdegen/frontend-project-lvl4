@@ -1,16 +1,16 @@
 // @ts-check
 
-import 'core-js/stable/index.js';
-import 'regenerator-runtime/runtime.js';
-import '../assets/application.scss';
+import "core-js/stable/index.js";
+import "regenerator-runtime/runtime.js";
+import "../assets/application.scss";
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import App from './components/App.jsx';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./components/App.jsx";
 
-if (process.env.NODE_ENV !== 'production') {
-  localStorage.debug = 'chat:*';
+if (process.env.NODE_ENV !== "production") {
+    localStorage.debug = "chat:*";
 }
 
 // const p = document.createElement('p');
@@ -36,12 +36,12 @@ if (process.env.NODE_ENV !== 'production') {
 // const root = ReactDOM.createRoot(card);
 // root.render(<div>lol</div>);
 
-const container = document.querySelector('#chat');
+const container = document.querySelector("#chat");
 const root = ReactDOM.createRoot(container);
 root.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+    <BrowserRouter>
+        <App />
+    </BrowserRouter>
 );
 
-console.log('it works!');
+console.log("it works!");
