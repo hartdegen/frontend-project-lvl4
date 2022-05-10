@@ -1,14 +1,13 @@
 import { Routes, Route, Link } from "react-router-dom";
 import React from "react";
 // import ReactDOM from "react-dom";
+import UserContext from "./contexts/UserContext.js";
 
 import MainPage from "./MainPage.jsx";
 import Notfoundpage from "./NotFound404.jsx";
 import LoginPage from "./LoginPage.jsx";
 
 const isAuth = () => localStorage.getItem("token") !== null;
-const UserContext = React.createContext({isAuth});
-
 const App = () => {
     return (
         <>

@@ -1,14 +1,15 @@
 import React, { useContext } from "react";
 import { Link, Navigate } from "react-router-dom";
-import UserContext from "./UserContext.js";
+import UserContext from "./contexts/UserContext.js";
 
 const MainPage = (props) => {
-    const { isAuth } = useContext(UserContext);
+    const isAuth = useContext(UserContext);
+    // console.log(111111111, useContext(UserContext));
     return isAuth() ? (
         <div>
             here will be chat section, but for now check this out
             <br />
-            <Link to="/login">authorization page</Link>
+            <Link to="/login">authentication page</Link>
             <br />
         </div>
     ) : (

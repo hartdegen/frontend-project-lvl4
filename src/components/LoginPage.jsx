@@ -1,13 +1,26 @@
 import React, { useState } from "react";
+import { useSelector, useDispatch, batch } from "react-redux";
 import { useFormik } from "formik";
 import axios from "axios";
 import * as Yup from "yup";
 import { Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
+import { addChannels } from "../slices/channelsSlice.js";
+import { addMessages } from "../slices/messagesSlice.js";
+import { selectors as channelsSelectors } from "../slices/channelsSlice.js";
+import { selectors as messagesSelectors } from "../slices/messagesSlice.js";
+
 const LoginPage = (props) => {
-    const [authError, setAuthError] = useState("");
+    const [authError, setAuthError] = useState();
+    const [, setCurrentChannelId] = useState();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const stateChannels = useSelector(channelsSelectors.selectAll);
+    const stateMessages = useSelector(messagesSelectors.selectAll);
+    // console.log(888, stateChannels);
+    // console.log(999, stateMessages);
+
     const formik = useFormik({
         initialValues: {
             username: "",
@@ -28,6 +41,19 @@ const LoginPage = (props) => {
                 const {
                     data: { token },
                 } = await axios.post("/api/v1/login", values);
+
+                const {
+                    data: { channels, messages, currentChannelId },
+                } = await axios.get("/api/v1/data", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                batch(() => {
+                    dispatch(addChannels(channels));
+                    dispatch(addMessages(messages));
+                });
+                setCurrentChannelId(currentChannelId);
+
                 localStorage.setItem("token", token);
                 navigate("/");
             } catch (err) {
