@@ -8,18 +8,12 @@ import { useNavigate } from "react-router-dom";
 
 import { addChannels } from "../slices/channelsSlice.js";
 import { addMessages } from "../slices/messagesSlice.js";
-import { selectors as channelsSelectors } from "../slices/channelsSlice.js";
-import { selectors as messagesSelectors } from "../slices/messagesSlice.js";
 
 const LoginPage = (props) => {
     const [authError, setAuthError] = useState();
     const [, setCurrentChannelId] = useState();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const stateChannels = useSelector(channelsSelectors.selectAll);
-    const stateMessages = useSelector(messagesSelectors.selectAll);
-    // console.log(888, stateChannels);
-    // console.log(999, stateMessages);
 
     const formik = useFormik({
         initialValues: {
@@ -47,6 +41,10 @@ const LoginPage = (props) => {
                 } = await axios.get("/api/v1/data", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
+
+                console.log(1, channels);
+                console.log(2, messages);
+                console.log(3, currentChannelId);
 
                 batch(() => {
                     dispatch(addChannels(channels));
