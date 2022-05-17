@@ -1,20 +1,16 @@
-import React, { useState } from "react";
-import { useSelector, useDispatch, batch } from "react-redux";
+import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Form, Button } from "react-bootstrap";
 import { useFormik } from "formik";
 import axios from "axios";
 import * as Yup from "yup";
-import { Form, Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 
-import { addChannels } from "../slices/channelsSlice.js";
-import { addMessages } from "../slices/messagesSlice.js";
+import UserContext from "./contexts/UserContext.js";
 
 const LoginPage = (props) => {
+    const isAuth = useContext(UserContext);
     const [authError, setAuthError] = useState();
-    const [, setCurrentChannelId] = useState();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
-
     const formik = useFormik({
         initialValues: {
             username: "",
@@ -35,23 +31,6 @@ const LoginPage = (props) => {
                 const {
                     data: { token },
                 } = await axios.post("/api/v1/login", values);
-
-                const {
-                    data: { channels, messages, currentChannelId },
-                } = await axios.get("/api/v1/data", {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-
-                console.log(1, channels);
-                console.log(2, messages);
-                console.log(3, currentChannelId);
-
-                batch(() => {
-                    dispatch(addChannels(channels));
-                    dispatch(addMessages(messages));
-                });
-                setCurrentChannelId(currentChannelId);
-
                 localStorage.setItem("token", token);
                 navigate("/");
             } catch (err) {
@@ -61,7 +40,9 @@ const LoginPage = (props) => {
         },
     });
 
-    return (
+    return isAuth() ? (
+        <p>you have been already authorized</p>
+    ) : (
         <Form onSubmit={formik.handleSubmit}>
             <Form.Group className="mb-3" controlId="username">
                 <Form.Label>Username</Form.Label>
@@ -72,11 +53,10 @@ const LoginPage = (props) => {
                     onBlur={formik.handleBlur}
                     value={formik.values.username}
                 />
-                {formik.touched.username && formik.errors.username ? (
+                {formik.touched.username && formik.errors.username && (
                     <div style={{ color: "red" }}>{formik.errors.username}</div>
-                ) : null}
+                )}
             </Form.Group>
-
             <Form.Group className="mb-3" controlId="password">
                 <Form.Label>Password</Form.Label>
                 <Form.Control
@@ -86,16 +66,14 @@ const LoginPage = (props) => {
                     onBlur={formik.handleBlur}
                     value={formik.values.password}
                 />
-                {formik.touched.password && formik.errors.password ? (
+                {formik.touched.password && formik.errors.password && (
                     <div style={{ color: "red" }}>{formik.errors.password}</div>
-                ) : null}
-                {authError ? (
-                    <div style={{ color: "red" }}>{authError}</div>
-                ) : null}
+                )}
             </Form.Group>
             <Button variant="primary" type="submit">
                 Submit
             </Button>
+            {authError && <div style={{ color: "red" }}>{authError}</div>}
         </Form>
     );
 };

@@ -1,8 +1,7 @@
 import { createSlice, createEntityAdapter } from "@reduxjs/toolkit";
 
 const channelsAdapter = createEntityAdapter();
-// Начальное значение
-// По умолчанию: { ids: [], entities: {} }
+// default state be like: { ids: [], entities: {} }
 const initialState = channelsAdapter.getInitialState();
 
 const channelsSlice = createSlice({

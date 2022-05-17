@@ -1,8 +1,7 @@
-import { createSlice, createEntityAdapter } from "@reduxjs/toolkit";
+import { createSlice, createEntityAdapter, createAsyncThunk } from '@reduxjs/toolkit';
 
 const messagesAdapter = createEntityAdapter();
-// Начальное значение
-// По умолчанию: { ids: [], entities: {} }
+// default state be like: { ids: [], entities: {} }
 const initialState = messagesAdapter.getInitialState();
 
 const messagesSlice = createSlice({
