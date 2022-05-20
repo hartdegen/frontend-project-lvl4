@@ -4,12 +4,15 @@ import { Form, Button, InputGroup, FormControl } from "react-bootstrap";
 import { useSelector, useDispatch, batch } from "react-redux";
 import axios from "axios";
 import _ from "lodash";
+import { io } from "socket.io-client";
 
 import UserContext from "./contexts/UserContext.js";
 import { selectors as channelsSelectors } from "../slices/channelsSlice.js";
 import { selectors as messagesSelectors } from "../slices/messagesSlice.js";
 import { addChannels } from "../slices/channelsSlice.js";
 import { addMessages, addMessage } from "../slices/messagesSlice.js";
+
+const socket = io();
 
 const MainPage = (props) => {
     const dispatch = useDispatch();
@@ -19,11 +22,10 @@ const MainPage = (props) => {
         const updateData = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const {
-                    data: { channels, messages, currentChannelId },
-                } = await axios.get("/api/v1/data", {
+                const data = await axios.get("/api/v1/data", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
+                const { channels, messages, currentChannelId } = data.data;
                 batch(() => {
                     dispatch(addChannels(channels));
                     dispatch(addMessages(messages));
@@ -38,6 +40,11 @@ const MainPage = (props) => {
         updateData();
     }, []);
 
+    socket.on("newMessage", (message) => {
+        console.log(`SOCKET.ON newMessage`, message);
+        dispatch(addMessage(message));
+    });
+
     const stateChannels = useSelector(channelsSelectors.selectAll);
     const stateMessages = useSelector(messagesSelectors.selectAll);
 
@@ -49,9 +56,8 @@ const MainPage = (props) => {
             id: _.uniqueId(),
             value: text,
         };
-        dispatch(addMessage(message));
         setText("");
-        console.log(`stateMessages`, stateMessages);
+        socket.emit("newMessage", message);
     };
     const onClick = (id) => async () => {
         setCurrentChannelId(id);
