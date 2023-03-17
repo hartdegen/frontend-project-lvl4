@@ -4,13 +4,12 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { Link } from "react-router-dom";
-
-// import UserContext from "./contexts/UserContext.js";
+import {UserContext} from "../index.js";
 
 const LoginPage = (props) => {
-    // const isAuth = useContext(UserContext);
+    const isAuth = useContext(UserContext);
     const [authError, setAuthError] = useState();
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const formik = useFormik({
         initialValues: {
             username: "",
@@ -25,32 +24,29 @@ const LoginPage = (props) => {
                 .min(3, "3 characters minimum")
                 .required("Required"),
         }),
-        onSubmit: values => {
-            alert(JSON.stringify(values, null, 2));
-          },
-        // onSubmit: async (values) => {
-        //     setAuthError("");
-        //     try {
-        //         const {
-        //             data: { token },
-        //         } = await axios.post("/api/v1/login", values);
-        //         localStorage.setItem("token", token);
-        //         navigate("/");
-        //     } catch (err) {
-        //         console.error(`ERROR CATCH`, err);
-        //         setAuthError(`${err.message} - ${err.response.statusText}`);
-        //     }
-        // },
+        onSubmit: async (values) => {
+            setAuthError("");
+            try {
+                const {
+                    data: { token },
+                } = await axios.post("/api/v1/login", values);
+                localStorage.setItem("token", token);
+                navigate("/");
+            } catch (err) {
+                console.error(`ERROR CATCH`, err);
+                setAuthError(`${err.message} - ${err.response.statusText}`);
+            }
+        },
     });
 
-    // return isAuth() ? (
-    //     <p>you have been already authorized</p>
-    // ) : (
-    return (
+    return isAuth() ? (
+        <><p>you have been already authorized</p><Link to="/">Go back to main page</Link></>
+    ) : (
         <>
         <Link to="/">Go back to main page</Link>
         <form onSubmit={formik.handleSubmit} name="usernamepassword">
             <div>
+                <div>username & password — admin</div><br></br>
                 <label htmlFor="username">Username</label>
                 <input 
                     type="text"
@@ -60,9 +56,7 @@ const LoginPage = (props) => {
                     onBlur={formik.handleBlur}
                     value={formik.values.username} 
                 />
-                {formik.touched.username && formik.errors.username && (
-                    <div style={{ color: "red" }}>{formik.errors.username}</div>
-                )}
+                {formik.touched.username && formik.errors.username && (<div style={{ color: "red" }}>{formik.errors.username}</div>)}
             </div>
             <div>
                 <label htmlFor="password">Password</label>

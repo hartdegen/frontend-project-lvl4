@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run build --prefix ./frontend/",
-    "startBackendOnly": "npx start-server -s ./frontend/build",
-    "start": "npm start --prefix ./frontend/"
+    "backendStart": "npx start-server -s ./frontend/build",
+    "frontendStart": "npm start --prefix ./frontend/"
   },
   "author": "",
   "license": "ISC",
