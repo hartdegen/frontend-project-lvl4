@@ -7,9 +7,10 @@ const NotFound404 = () => {
     console.error(error);
 
     return (
-        <div id="id-NotFound404">
+        <div>
             <h1>Oops!</h1>
-            <p>This page doesn't exist.
+            <p>
+                This page doesn't exist.
                 <Link to="/">Go to main page</Link>
             </p>
             <p>
@@ -17,6 +18,7 @@ const NotFound404 = () => {
             </p>
         </div>
     );
-}
+};
 
 export default NotFound404;
+

@@ -1,10 +1,12 @@
-// file: slices/index.js
-
-import { configureStore } from '@reduxjs/toolkit';
-import counterReducer from '../slices/counterSlice.js';
+import { configureStore } from "@reduxjs/toolkit";
+import channelsReducer from "./channelsSlice.js";
+import messagesReducer from "./messagesSlice.js";
 
 export default configureStore({
-  reducer: {
-    counter: counterReducer,
-  },
+    reducer: {
+        // channels – имя внутри объекта состояния state.channels
+        channels: channelsReducer,
+        messages: messagesReducer,
+    },
 });
+
