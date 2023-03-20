@@ -1,6 +1,6 @@
 // import { Form, Button, InputGroup, FormControl } from "react-bootstrap";
 import React, { useContext, useState, useEffect } from "react";
-import { useSelector, useDispatch, batch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 import _ from "lodash";
@@ -9,7 +9,7 @@ import { io } from "socket.io-client";
 import { UserContext } from "../index.js";
 import { selectors as channelsSelectors } from "../slices/channelsSlice.js";
 import { selectors as messagesSelectors } from "../slices/messagesSlice.js";
-import { addChannels } from "../slices/channelsSlice.js";
+import { addChannels, addChannel } from "../slices/channelsSlice.js";
 import { addMessages, addMessage } from "../slices/messagesSlice.js";
 
 const socket = io();
@@ -20,9 +20,19 @@ const logOut = () => {
 
 const MainPage = (props) => {
     const dispatch = useDispatch();
-    const [text, setText] = useState();
+    const [messageText, setMessageText] = useState();
     const [username, setUsername] = useState();
+    const [channelName, setChannelName] = useState();
     const [currentChannelId, setCurrentChannelId] = useState();
+    socket.on("newMessage", (message) => {
+        console.log(`SOCKET.ON newMessage`, message);
+        dispatch(addMessage(message));
+    });
+    socket.on('newChannel', (channel) => {
+        console.log(`SOCKET.ON newChannel`, channel)
+        dispatch(addChannel(channel));
+    });
+
     useEffect(() => {
         const updateData = async () => {
             try {
@@ -33,10 +43,6 @@ const MainPage = (props) => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const { channels, messages, currentChannelId } = data.data;
-                // batch(() => {
-                //     dispatch(addChannels(channels));
-                //     dispatch(addMessages(messages));
-                // });
                 dispatch(addChannels(channels));
                 dispatch(addMessages(messages));
                 setCurrentChannelId(currentChannelId);
@@ -49,46 +55,51 @@ const MainPage = (props) => {
         updateData();
     }, []);
 
-    socket.on("newMessage", (message) => {
-        console.log(`SOCKET.ON newMessage`, message);
-        dispatch(addMessage(message));
-    });
-
+    const isAuth = useContext(UserContext);
     const stateChannels = useSelector(channelsSelectors.selectAll);
     const stateMessages = useSelector(messagesSelectors.selectAll);
-
-    const onChange = (e) => setText(e.target.value);
-    const onSubmit = (e) => {
+    const changeChannelName = (e) => setChannelName(e.target.value);
+    const changeMessageText = (e) => setMessageText(e.target.value);
+    const createNewChannel = (e) => {
         e.preventDefault();
-        const time = `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`;
+        const isNameAlreadyExist = stateChannels.some(channel => channel.name === channelName);
+        if (isNameAlreadyExist) return;
+        socket.emit('newChannel', { name: channelName }, (response) => {
+            console.log(`newChannel RESPONSE STATUS`, response.status); // ok
+            setCurrentChannelId(response.data.id);
+            setChannelName("");
+        });
+    }
+    const sendMessage = (e) => {
+        e.preventDefault();
+        const time = `${new Date().getHours()}:${new Date().getMinutes()}`;
         const message = {
             channelId: currentChannelId,
             id: _.uniqueId(),
-            value: `${time} ${username}: ${text}`,
+            username: username,
+            body: `${time} ${username}: ${messageText}`,
         };
-        setText("");
-        socket.emit("newMessage", message);
+        socket.emit("newMessage", message, (response) => {
+            console.log(`newMessage RESPONSE STATUS`, response.status); // ok
+            setMessageText("");
+        });
     };
-    const onClick = (id) => async () => {
-        setCurrentChannelId(id);
-        // in process
-    };
-    const isAuth = useContext(UserContext);
 
     return isAuth() ? (
         <>
         <div className="chatPage" style={{ display: "flex" }}>
-            <div
-                className="channels"
-                style={{ display: "flex", flexDirection: "column" }}
-            >
+            <div className="channels" style={{ display: "flex", flexDirection: "column" }}>
                 <Link onClick={logOut} to="/login">Log out</Link>
                 <br />
+                <form className="createNewChannel" onSubmit={createNewChannel}>
+                    <input type="text" placeholder="Add New Channel" value={channelName} onChange={changeChannelName}/>
+                    <input type="submit" value="+" />
+                </form>
                 <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
-                    {stateChannels.map((item) => (
-                        <li key={item.id}>
-                            <a href="#" onClick={onClick(item.id)}>
-                                {item.name}
+                    {stateChannels.map((channel) => (
+                        <li key={channel.id}>
+                            <a href="#" onClick={() => setCurrentChannelId(channel.id)}>
+                                {channel.name}
                             </a>
                         </li>
                     ))}
@@ -96,28 +107,18 @@ const MainPage = (props) => {
                 <br />
             </div>
 
-            <div
-                className="messages"
-                style={{ display: "flex", flexDirection: "column", paddingLeft: 10 }}
-            >
+            <div className="messages" style={{ display: "flex", flexDirection: "column", paddingLeft: 10 }}>
                 <div>You are {username}</div>
+                <br />
+                <form onSubmit={sendMessage}>
+                    <input type="text" placeholder="Type your message" value={messageText} onChange={changeMessageText}/>
+                    <input type="submit" value="Send" />
+                </form>
                 <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
-                    {stateMessages.map((item) => (
-                        <li key={item.id}>{item.value}</li>
-                    ))}
+                    {stateMessages.filter(message => currentChannelId === message.channelId)
+                                  .map(message => <li key={message.id}>{message.body}</li>)}
                 </ul>
                 <br />
-                <form onSubmit={onSubmit}>
-                    <label>
-                        <input
-                            type="text"
-                            placeholder="Type your message"
-                            value={text}
-                            onChange={onChange}
-                        />
-                    </label>
-                    <input type="submit" value="Submit" />
-                </form>
             </div>
         </div>
         </>
@@ -127,4 +128,3 @@ const MainPage = (props) => {
 };
 
 export default MainPage;
-
