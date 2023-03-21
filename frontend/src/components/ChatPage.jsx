@@ -1,3 +1,10 @@
+import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Dropdown from 'react-bootstrap/Dropdown';
+import ListGroup from 'react-bootstrap/ListGroup';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+
 // import { Form, Button, InputGroup, FormControl } from "react-bootstrap";
 import React, { useContext, useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -87,40 +94,49 @@ const MainPage = (props) => {
 
     return isAuth() ? (
         <>
-        <div className="chatPage" style={{ display: "flex" }}>
-            <div className="channels" style={{ display: "flex", flexDirection: "column" }}>
-                <Link onClick={logOut} to="/login">Log out</Link>
-                <br />
-                <form className="createNewChannel" onSubmit={createNewChannel}>
-                    <input type="text" placeholder="Add New Channel" value={channelName} onChange={changeChannelName}/>
-                    <input type="submit" value="+" />
-                </form>
-                <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
-                    {stateChannels.map((channel) => (
-                        <li key={channel.id}>
-                            <a href="#" onClick={() => setCurrentChannelId(channel.id)}>
-                                {channel.name}
-                            </a>
-                        </li>
-                    ))}
-                </ul>
-                <br />
-            </div>
+            <div className="chatPage d-flex">
+                <div className="channels flex-column">
+                    <Link onClick={logOut} to="/login">Log out</Link>
+                    <Form onSubmit={createNewChannel}>
+                        <InputGroup className="mb-3">
+                            <Form.Control placeholder="Add New Channel" value={channelName} onChange={changeChannelName} />
+                            <Button type="submit">+</Button>
+                        </InputGroup>
+                    </Form>
+                    <ButtonGroup vertical>
+                        <ListGroup>
+                            {stateChannels.map((channel) => (
+                                <ListGroup.Item key={channel.id} name={channel.name} action onClick={() => setCurrentChannelId(channel.id)}>
+                                    <Dropdown as={ButtonGroup}>
+                                        <Button variant="success">{channel.name}</Button>
+                                        <Dropdown.Toggle split variant="success" id="dropdown-split-basic" />
+                                        <Dropdown.Menu>
+                                            <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
+                                            <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
+                                            <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+                                        </Dropdown.Menu>
+                                    </Dropdown>
+                                </ListGroup.Item>
+                            ))}
+                        </ListGroup>
+                    </ButtonGroup>
+                </div>
 
-            <div className="messages" style={{ display: "flex", flexDirection: "column", paddingLeft: 10 }}>
-                <div>You are {username}</div>
-                <br />
-                <form onSubmit={sendMessage}>
-                    <input type="text" placeholder="Type your message" value={messageText} onChange={changeMessageText}/>
-                    <input type="submit" value="Send" />
-                </form>
-                <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
-                    {stateMessages.filter(message => currentChannelId === message.channelId)
-                                  .map(message => <li key={message.id}>{message.body}</li>)}
-                </ul>
-                <br />
+                <div className="messages flex-column">
+                    <div>You are {username}</div>
+                    <Form onSubmit={sendMessage}>
+                        <InputGroup className="mb-3">
+                            <Form.Control placeholder="Type your message" value={messageText} onChange={changeMessageText} />
+                            <Button type="submit">+</Button>
+                        </InputGroup>
+                    </Form>
+                    <ListGroup style={{ maxHeight: `300px`, overflow: `auto` }}>
+                        {stateMessages.filter(message => currentChannelId === message.channelId)
+                            // .map(message => <ListGroup.Item key={message.id}>{message.body}</ListGroup.Item>)}
+                            .map(message => <p key={message.id}>{message.body}</p>)}
+                    </ListGroup>
+                </div>
             </div>
-        </div>
         </>
     ) : (
         <Navigate to="/login" />

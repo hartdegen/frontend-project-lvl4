@@ -1,3 +1,4 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { createContext } from "react";
 import { Provider } from "react-redux";
 import ReactDOM from "react-dom/client";
