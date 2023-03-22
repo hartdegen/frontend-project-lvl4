@@ -4,6 +4,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
+import Modal from 'react-bootstrap/Modal';
 
 // import { Form, Button, InputGroup, FormControl } from "react-bootstrap";
 import React, { useContext, useState, useEffect } from "react";
@@ -16,7 +17,7 @@ import { io } from "socket.io-client";
 import { UserContext } from "../index.js";
 import { selectors as channelsSelectors } from "../slices/channelsSlice.js";
 import { selectors as messagesSelectors } from "../slices/messagesSlice.js";
-import { addChannels, addChannel } from "../slices/channelsSlice.js";
+import { addChannels, addChannel, removeChannel } from "../slices/channelsSlice.js";
 import { addMessages, addMessage } from "../slices/messagesSlice.js";
 
 const socket = io();
@@ -31,13 +32,22 @@ const MainPage = (props) => {
     const [username, setUsername] = useState();
     const [channelName, setChannelName] = useState();
     const [currentChannelId, setCurrentChannelId] = useState();
+    const [show, setShow] = useState(false);
+    const isAuth = useContext(UserContext);
+    const stateChannels = useSelector(channelsSelectors.selectAll);
+    const stateMessages = useSelector(messagesSelectors.selectAll);
+
     socket.on("newMessage", (message) => {
-        console.log(`SOCKET.ON newMessage`, message);
+        console.log(`SOCKET.ON newMessage`, message); // => { body: "new message", channelId: 7, id: 8, username: "admin" }
         dispatch(addMessage(message));
     });
     socket.on('newChannel', (channel) => {
-        console.log(`SOCKET.ON newChannel`, channel)
+        console.log(`SOCKET.ON newChannel`, channel); // { id: 6, name: "new channel", removable: true }
         dispatch(addChannel(channel));
+    });
+    socket.on('removeChannel', (channel) => {
+        console.log(`SOCKET.ON removeChannel`, channel); // { id: 6 }
+        dispatch(removeChannel(channel.id));
     });
 
     useEffect(() => {
@@ -62,9 +72,7 @@ const MainPage = (props) => {
         updateData();
     }, []);
 
-    const isAuth = useContext(UserContext);
-    const stateChannels = useSelector(channelsSelectors.selectAll);
-    const stateMessages = useSelector(messagesSelectors.selectAll);
+
     const changeChannelName = (e) => setChannelName(e.target.value);
     const changeMessageText = (e) => setMessageText(e.target.value);
     const createNewChannel = (e) => {
@@ -72,9 +80,14 @@ const MainPage = (props) => {
         const isNameAlreadyExist = stateChannels.some(channel => channel.name === channelName);
         if (isNameAlreadyExist) return;
         socket.emit('newChannel', { name: channelName }, (response) => {
-            console.log(`newChannel RESPONSE STATUS`, response.status); // ok
+            console.log(`newChannel RESPONSE STATUS`, response); // ok
             setCurrentChannelId(response.data.id);
             setChannelName("");
+        });
+    }
+    const handleRemoveChannel = (id) => {
+        socket.emit('removeChannel', { id }, (response) => {
+            console.log(`removeChannel RESPONSE STATUS`, response); // ok
         });
     }
     const sendMessage = (e) => {
@@ -87,10 +100,34 @@ const MainPage = (props) => {
             body: `${time} ${username}: ${messageText}`,
         };
         socket.emit("newMessage", message, (response) => {
-            console.log(`newMessage RESPONSE STATUS`, response.status); // ok
+            console.log(`newMessage RESPONSE STATUS`, response); // ok
             setMessageText("");
         });
     };
+
+    const dropdownModal = (channelId) => {
+        const handleClose = () => setShow(false);
+        const handleShow = () => setShow(true);
+        return (
+            <>
+                <Dropdown.Item onClick={handleShow}>Удалить</Dropdown.Item>
+                <Modal show={show} onHide={handleClose}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Удалить канал</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>Уверены?</Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={handleClose}>
+                            Отменить
+                        </Button>
+                        <Button variant="danger" onClick={() => handleRemoveChannel(channelId)}>
+                            Удалить
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+            </>
+        );
+    }
 
     return isAuth() ? (
         <>
@@ -111,12 +148,10 @@ const MainPage = (props) => {
                                         <Button variant="success">{channel.name}</Button>
                                         <Dropdown.Toggle split variant="success" id="dropdown-split-basic" />
                                         <Dropdown.Menu>
-                                            <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-                                            <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-                                            <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+                                            {dropdownModal(channel.id)}
                                         </Dropdown.Menu>
                                     </Dropdown>
-                                </ListGroup.Item>
+                            </ListGroup.Item>
                             ))}
                         </ListGroup>
                     </ButtonGroup>
@@ -132,7 +167,6 @@ const MainPage = (props) => {
                     </Form>
                     <ListGroup style={{ maxHeight: `300px`, overflow: `auto` }}>
                         {stateMessages.filter(message => currentChannelId === message.channelId)
-                            // .map(message => <ListGroup.Item key={message.id}>{message.body}</ListGroup.Item>)}
                             .map(message => <p key={message.id}>{message.body}</p>)}
                     </ListGroup>
                 </div>
