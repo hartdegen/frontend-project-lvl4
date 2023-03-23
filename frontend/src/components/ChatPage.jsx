@@ -1,10 +1,10 @@
-import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Dropdown from 'react-bootstrap/Dropdown';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Modal from 'react-bootstrap/Modal';
+import Button from "react-bootstrap/Button";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
+import Dropdown from "react-bootstrap/Dropdown";
+import ListGroup from "react-bootstrap/ListGroup";
+import Form from "react-bootstrap/Form";
+import InputGroup from "react-bootstrap/InputGroup";
+import Modal from "react-bootstrap/Modal";
 
 // import { Form, Button, InputGroup, FormControl } from "react-bootstrap";
 import React, { useContext, useState, useEffect } from "react";
@@ -41,11 +41,11 @@ const MainPage = (props) => {
         console.log(`SOCKET.ON newMessage`, message); // => { body: "new message", channelId: 7, id: 8, username: "admin" }
         dispatch(addMessage(message));
     });
-    socket.on('newChannel', (channel) => {
+    socket.on("newChannel", (channel) => {
         console.log(`SOCKET.ON newChannel`, channel); // { id: 6, name: "new channel", removable: true }
         dispatch(addChannel(channel));
     });
-    socket.on('removeChannel', (channel) => {
+    socket.on("removeChannel", (channel) => {
         console.log(`SOCKET.ON removeChannel`, channel); // { id: 6 }
         dispatch(removeChannel(channel.id));
     });
@@ -72,24 +72,24 @@ const MainPage = (props) => {
         updateData();
     }, []);
 
-
     const changeChannelName = (e) => setChannelName(e.target.value);
     const changeMessageText = (e) => setMessageText(e.target.value);
     const createNewChannel = (e) => {
         e.preventDefault();
-        const isNameAlreadyExist = stateChannels.some(channel => channel.name === channelName);
+        const isNameAlreadyExist = stateChannels.some((channel) => channel.name === channelName);
         if (isNameAlreadyExist) return;
-        socket.emit('newChannel', { name: channelName }, (response) => {
+        socket.emit("newChannel", { name: channelName }, (response) => {
             console.log(`newChannel RESPONSE STATUS`, response); // ok
             setCurrentChannelId(response.data.id);
             setChannelName("");
         });
-    }
+    };
     const handleRemoveChannel = (id) => {
-        socket.emit('removeChannel', { id }, (response) => {
+        socket.emit("removeChannel", { id }, (response) => {
             console.log(`removeChannel RESPONSE STATUS`, response); // ok
+            setCurrentChannelId(1);
         });
-    }
+    };
     const sendMessage = (e) => {
         e.preventDefault();
         const time = `${new Date().getHours()}:${new Date().getMinutes()}`;
@@ -127,13 +127,15 @@ const MainPage = (props) => {
                 </Modal>
             </>
         );
-    }
+    };
 
     return isAuth() ? (
         <>
             <div className="chatPage d-flex">
                 <div className="channels flex-column">
-                    <Link onClick={logOut} to="/login">Log out</Link>
+                    <Link onClick={logOut} to="/login">
+                        Log out
+                    </Link>
                     <Form onSubmit={createNewChannel}>
                         <InputGroup className="mb-3">
                             <Form.Control placeholder="Add New Channel" value={channelName} onChange={changeChannelName} />
@@ -146,12 +148,14 @@ const MainPage = (props) => {
                                 <ListGroup.Item key={channel.id} name={channel.name} action onClick={() => setCurrentChannelId(channel.id)}>
                                     <Dropdown as={ButtonGroup}>
                                         <Button variant="success">{channel.name}</Button>
-                                        <Dropdown.Toggle split variant="success" id="dropdown-split-basic" />
-                                        <Dropdown.Menu>
-                                            {dropdownModal(channel.id)}
-                                        </Dropdown.Menu>
+                                        {channel.removable && (
+                                            <>
+                                                <Dropdown.Toggle split variant="success" id="dropdown-split-basic" />
+                                                <Dropdown.Menu>{dropdownModal(channel.id)}</Dropdown.Menu>
+                                            </>
+                                        )}
                                     </Dropdown>
-                            </ListGroup.Item>
+                                </ListGroup.Item>
                             ))}
                         </ListGroup>
                     </ButtonGroup>
@@ -166,8 +170,11 @@ const MainPage = (props) => {
                         </InputGroup>
                     </Form>
                     <ListGroup style={{ maxHeight: `300px`, overflow: `auto` }}>
-                        {stateMessages.filter(message => currentChannelId === message.channelId)
-                            .map(message => <p key={message.id}>{message.body}</p>)}
+                        {stateMessages
+                            .filter((message) => currentChannelId === message.channelId)
+                            .map((message) => (
+                                <p key={message.id}>{message.body}</p>
+                            ))}
                     </ListGroup>
                 </div>
             </div>

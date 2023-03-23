@@ -1,4 +1,5 @@
-import { createSlice, createEntityAdapter } from "@reduxjs/toolkit";
+import { removeChannel } from "./channelsSlice.js";
+import { createSlice, createEntityAdapter, current } from "@reduxjs/toolkit";
 
 const messagesAdapter = createEntityAdapter();
 // default state be like: { ids: [], entities: {} }
@@ -10,10 +11,19 @@ const messagesSlice = createSlice({
     reducers: {
         addMessage: messagesAdapter.addOne,
         addMessages: messagesAdapter.addMany,
+        removeMessage: messagesAdapter.removeOne,
+    },
+    extraReducers: (builder) => {
+        builder.addCase(removeChannel, (state, action) => {
+            // console.log(11111, current(state)); // state is proxy object, `current()` make it fine
+            // console.log(22222, action);
+            const channelId = action.payload;
+            const messagesNotFromRemovedChannel = Object.values(state.entities).filter((e) => e.channelId !== channelId);
+            messagesAdapter.setAll(state, messagesNotFromRemovedChannel);
+        });
     },
 });
 
 export const selectors = messagesAdapter.getSelectors((state) => state.messages);
-export const { addMessage, addMessages } = messagesSlice.actions;
+export const { addMessage, addMessages, removeMessage } = messagesSlice.actions;
 export default messagesSlice.reducer;
-
