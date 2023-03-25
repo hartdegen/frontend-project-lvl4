@@ -1,12 +1,9 @@
 import Button from "react-bootstrap/Button";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
-import Dropdown from "react-bootstrap/Dropdown";
+import SplitButton from "react-bootstrap/SplitButton";
 import ListGroup from "react-bootstrap/ListGroup";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
-import Modal from "react-bootstrap/Modal";
 
-// import { Form, Button, InputGroup, FormControl } from "react-bootstrap";
 import React, { useContext, useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, Navigate } from "react-router-dom";
@@ -17,8 +14,11 @@ import { io } from "socket.io-client";
 import { UserContext } from "../index.js";
 import { selectors as channelsSelectors } from "../slices/channelsSlice.js";
 import { selectors as messagesSelectors } from "../slices/messagesSlice.js";
-import { addChannels, addChannel, removeChannel } from "../slices/channelsSlice.js";
+import { addChannels, addChannel, removeChannel, renameChannel } from "../slices/channelsSlice.js";
 import { addMessages, addMessage } from "../slices/messagesSlice.js";
+
+import RenameChannelButton from "./chatPageElements/RenameChannelButton.jsx";
+import RemoveChannelButton from "./chatPageElements/RemoveChannelButton.jsx";
 
 const socket = io();
 const logOut = () => {
@@ -28,11 +28,10 @@ const logOut = () => {
 
 const MainPage = (props) => {
     const dispatch = useDispatch();
-    const [messageText, setMessageText] = useState();
     const [username, setUsername] = useState();
+    const [messageText, setMessageText] = useState();
     const [channelName, setChannelName] = useState();
     const [currentChannelId, setCurrentChannelId] = useState();
-    const [show, setShow] = useState(false);
     const isAuth = useContext(UserContext);
     const stateChannels = useSelector(channelsSelectors.selectAll);
     const stateMessages = useSelector(messagesSelectors.selectAll);
@@ -48,6 +47,10 @@ const MainPage = (props) => {
     socket.on("removeChannel", (channel) => {
         console.log(`SOCKET.ON removeChannel`, channel); // { id: 6 }
         dispatch(removeChannel(channel.id));
+    });
+    socket.on("renameChannel", (channel) => {
+        console.log(`SOCKET.ON renameChannel`, channel); // { id: 7, name: "new name channel", removable: true }
+        dispatch(renameChannel({ id: channel.id, changes: { name: channel.name } }));
     });
 
     useEffect(() => {
@@ -74,7 +77,21 @@ const MainPage = (props) => {
 
     const changeChannelName = (e) => setChannelName(e.target.value);
     const changeMessageText = (e) => setMessageText(e.target.value);
-    const createNewChannel = (e) => {
+    const handleNewMessage = (e) => {
+        e.preventDefault();
+        const time = `${new Date().getHours()}:${new Date().getMinutes()}`;
+        const message = {
+            channelId: currentChannelId,
+            id: _.uniqueId(),
+            username: username,
+            body: `${time} ${username}: ${messageText}`,
+        };
+        socket.emit("newMessage", message, (response) => {
+            console.log(`newMessage RESPONSE STATUS`, response); // ok
+            setMessageText("");
+        });
+    };
+    const handleNewChannel = (e) => {
         e.preventDefault();
         const isNameAlreadyExist = stateChannels.some((channel) => channel.name === channelName);
         if (isNameAlreadyExist) return;
@@ -90,43 +107,12 @@ const MainPage = (props) => {
             setCurrentChannelId(1);
         });
     };
-    const sendMessage = (e) => {
-        e.preventDefault();
-        const time = `${new Date().getHours()}:${new Date().getMinutes()}`;
-        const message = {
-            channelId: currentChannelId,
-            id: _.uniqueId(),
-            username: username,
-            body: `${time} ${username}: ${messageText}`,
-        };
-        socket.emit("newMessage", message, (response) => {
-            console.log(`newMessage RESPONSE STATUS`, response); // ok
-            setMessageText("");
+    const handleRenameChannel = (id, name) => {
+        const isNameAlreadyExist = stateChannels.some((channel) => channel.name === name);
+        if (isNameAlreadyExist) return;
+        socket.emit("renameChannel", { id, name }, (response) => {
+            console.log(`renameChannel RESPONSE STATUS`, response); // ok
         });
-    };
-
-    const dropdownModal = (channelId) => {
-        const handleClose = () => setShow(false);
-        const handleShow = () => setShow(true);
-        return (
-            <>
-                <Dropdown.Item onClick={handleShow}>Удалить</Dropdown.Item>
-                <Modal show={show} onHide={handleClose}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Удалить канал</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>Уверены?</Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleClose}>
-                            Отменить
-                        </Button>
-                        <Button variant="danger" onClick={() => handleRemoveChannel(channelId)}>
-                            Удалить
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-            </>
-        );
     };
 
     return isAuth() ? (
@@ -136,35 +122,32 @@ const MainPage = (props) => {
                     <Link onClick={logOut} to="/login">
                         Log out
                     </Link>
-                    <Form onSubmit={createNewChannel}>
-                        <InputGroup className="mb-3">
+                    <Form onSubmit={handleNewChannel}>
+                        <InputGroup>
                             <Form.Control placeholder="Add New Channel" value={channelName} onChange={changeChannelName} />
                             <Button type="submit">+</Button>
                         </InputGroup>
                     </Form>
-                    <ButtonGroup vertical>
-                        <ListGroup>
-                            {stateChannels.map((channel) => (
-                                <ListGroup.Item key={channel.id} name={channel.name} action onClick={() => setCurrentChannelId(channel.id)}>
-                                    <Dropdown as={ButtonGroup}>
-                                        <Button variant="success">{channel.name}</Button>
-                                        {channel.removable && (
-                                            <>
-                                                <Dropdown.Toggle split variant="success" id="dropdown-split-basic" />
-                                                <Dropdown.Menu>{dropdownModal(channel.id)}</Dropdown.Menu>
-                                            </>
-                                        )}
-                                    </Dropdown>
-                                </ListGroup.Item>
-                            ))}
-                        </ListGroup>
-                    </ButtonGroup>
+                    <ul>
+                        {stateChannels.map((channel) => (
+                            <li key={channel.id}>
+                                <SplitButton title={channel.name} onClick={() => { setCurrentChannelId(channel.id); }}>
+                                    {channel.removable && (
+                                        <>
+                                            {RemoveChannelButton(channel.id, handleRemoveChannel)}
+                                            {RenameChannelButton(channel.id, handleRenameChannel)}
+                                        </>
+                                    )}
+                                </SplitButton>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
 
                 <div className="messages flex-column">
                     <div>You are {username}</div>
-                    <Form onSubmit={sendMessage}>
-                        <InputGroup className="mb-3">
+                    <Form onSubmit={handleNewMessage}>
+                        <InputGroup>
                             <Form.Control placeholder="Type your message" value={messageText} onChange={changeMessageText} />
                             <Button type="submit">+</Button>
                         </InputGroup>
