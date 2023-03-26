@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useContext, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -6,6 +7,7 @@ import { Link, Navigate } from "react-router-dom";
 import { UserContext } from "../index.js";
 
 const LoginPage = (props) => {
+    const { t } = useTranslation();
     const isAuth = useContext(UserContext);
     const [authError, setAuthError] = useState();
     const formik = useFormik({
@@ -15,19 +17,16 @@ const LoginPage = (props) => {
         },
         validationSchema: Yup.object({
             username: Yup.string()
-                .min(3, "3 characters minimum")
-                .max(15, "15 characters maximum")
-                .required("Required"),
+                .min(3, `${t("min3Symbols")}`)
+                .max(15, `${t("max15Symbols")}`)
+                .required(`${t("required")}`),
             password: Yup.string()
-                .min(3, "3 characters minimum")
-                .required("Required"),
+                .min(3, `${t("min3Symbols")}`)
+                .required(`${t("required")}`),
         }),
         onSubmit: async (values) => {
             setAuthError("");
             try {
-                // const data = await axios.post("/api/v1/login", values);
-                // const token = data.token;
-                // console.log(`data from /api/v1/login \n`, data)
                 const {
                     data: { token, username },
                 } = await axios.post("/api/v1/login", values);
@@ -45,45 +44,21 @@ const LoginPage = (props) => {
         <Navigate to="/" />
     ) : (
         <>
-            <Link to="/">Go back to main page</Link>
+            <Link to="/">{t("toMainPage")}</Link>
             <br />
-            <Link to="/registration">Go to registration page</Link>
+            <Link to="/signup">{t("toRegistrationPage")}</Link>
             <form onSubmit={formik.handleSubmit}>
                 <div>
-                    <div>username & password — admin</div>
-                    <br></br>
-                    <label htmlFor="username">Username</label>
-                    <input
-                        type="text"
-                        placeholder="Type username"
-                        id="username"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.username}
-                    />
-                    {formik.touched.username && formik.errors.username && (
-                        <div style={{ color: "red" }}>
-                            {formik.errors.username}
-                        </div>
-                    )}
+                    <input type="text" placeholder={t('typeUsername')} id="username" onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.username} />
+                    <label htmlFor="username">{t("username")}</label>
+                    {formik.touched.username && formik.errors.username && <div style={{ color: "red" }}>{formik.errors.username}</div>}
                 </div>
                 <div>
-                    <label htmlFor="password">Password</label>
-                    <input
-                        type="password"
-                        placeholder="Type password"
-                        id="password"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.password}
-                    />
-                    {formik.touched.password && formik.errors.password && (
-                        <div style={{ color: "red" }}>
-                            {formik.errors.password}
-                        </div>
-                    )}
+                    <input type="password" placeholder={t('typePassword')} id="password" onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.password} />
+                    <label htmlFor="password">{t("password")}</label>
+                    {formik.touched.password && formik.errors.password && <div style={{ color: "red" }}>{formik.errors.password}</div>}
                 </div>
-                <input type="submit" value="Submit" />
+                <input type="submit" value={t('submit')} />
                 {authError && <div style={{ color: "red" }}>{authError}</div>}
             </form>
         </>

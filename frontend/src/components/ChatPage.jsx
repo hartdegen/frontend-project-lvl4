@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import Button from "react-bootstrap/Button";
 import SplitButton from "react-bootstrap/SplitButton";
 import ListGroup from "react-bootstrap/ListGroup";
@@ -27,12 +29,14 @@ const logOut = () => {
 };
 
 const MainPage = (props) => {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const [username, setUsername] = useState();
     const [messageText, setMessageText] = useState();
     const [channelName, setChannelName] = useState();
     const [currentChannelId, setCurrentChannelId] = useState();
     const isAuth = useContext(UserContext);
+
     const stateChannels = useSelector(channelsSelectors.selectAll);
     const stateMessages = useSelector(messagesSelectors.selectAll);
 
@@ -119,12 +123,10 @@ const MainPage = (props) => {
         <>
             <div className="chatPage d-flex">
                 <div className="channels flex-column">
-                    <Link onClick={logOut} to="/login">
-                        Log out
-                    </Link>
+                    <Link onClick={logOut} to="/login">{t("logOut")}</Link>
                     <Form onSubmit={handleNewChannel}>
                         <InputGroup>
-                            <Form.Control placeholder="Add New Channel" value={channelName} onChange={changeChannelName} />
+                            <Form.Control placeholder={t("addNewChannel")} value={channelName} onChange={changeChannelName} />
                             <Button type="submit">+</Button>
                         </InputGroup>
                     </Form>
@@ -145,10 +147,10 @@ const MainPage = (props) => {
                 </div>
 
                 <div className="messages flex-column">
-                    <div>You are {username}</div>
+                    <div>{t("yourUsername")} <b>{username}</b></div>
                     <Form onSubmit={handleNewMessage}>
                         <InputGroup>
-                            <Form.Control placeholder="Type your message" value={messageText} onChange={changeMessageText} />
+                            <Form.Control placeholder={t("typeMessage")} value={messageText} onChange={changeMessageText} />
                             <Button type="submit">+</Button>
                         </InputGroup>
                     </Form>

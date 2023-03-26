@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
@@ -7,6 +8,7 @@ import { Link } from "react-router-dom";
 
 const RegistrationPage = (props) => {
     const [authError, setAuthError] = useState();
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const formik = useFormik({
         initialValues: {
@@ -16,23 +18,20 @@ const RegistrationPage = (props) => {
         },
         validationSchema: Yup.object({
             username: Yup.string()
-                .min(3, "3 characters minimum")
-                .max(15, "15 characters maximum")
-                .required("Required"),
+                .min(3, `${t('min3Symbols')}`)
+                .max(15, `${t('max15Symbols')}`)
+                .required(`${t('required')}`),
             password: Yup.string()
-                .min(3, "3 characters minimum")
-                .required("Required"),
+                .min(3, `${t('min3Symbols')}`)
+                .required(`${t('required')}`),
             confirm: Yup.string()
-                .min(3, "3 characters minimum")
-                .required("Required")
-                .oneOf([Yup.ref("password")], "Passwords must match"),
+                .min(3, `${t('min3Symbols')}`)
+                .required(`${t('required')}`)
+                .oneOf([Yup.ref("password")], `${t('passwordsSholdBeSame')}`),
         }),
         onSubmit: async (values) => {
             setAuthError("");
             try {
-                // const data = await axios.post("/api/v1/login", values);
-                // const token = data.token;
-                // console.log(`data from /api/v1/login \n`, data)
                 const { data } = await axios.post("/api/v1/signup", values);
                 console.log(`data from /api/v1/signup \n`, data);
                 navigate("/");
@@ -45,20 +44,19 @@ const RegistrationPage = (props) => {
 
     return (
         <>
-            <Link to="/">Go back to main page</Link>
+            <Link to="/">{t('toMainPage')}</Link>
             <form onSubmit={formik.handleSubmit}>
                 <div>
-                    <div>Registration</div>
-                    <br />
+                    <div>{t('registration')}</div>
                     <input
                         type="text"
-                        placeholder="От 3 до 20 символов"
+                        placeholder={t('from3to20')}
                         id="username"
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.username}
                     />
-                    <label htmlFor="username">Имя пользователя</label>
+                    <label htmlFor="username">{t('username')}</label>
                     {formik.touched.username && formik.errors.username && (
                         <div style={{ color: "red" }}>
                             {formik.errors.username}
@@ -68,13 +66,13 @@ const RegistrationPage = (props) => {
                 <div>
                     <input
                         type="password"
-                        placeholder="Не менее 3 символов"
+                        placeholder={t('minimum3symbols')}
                         id="password"
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.password}
                     />
-                    <label htmlFor="password">Пароль</label>
+                    <label htmlFor="password">{t('password')}</label>
                     {formik.touched.password && formik.errors.password && (
                         <div style={{ color: "red" }}>
                             {formik.errors.password}
@@ -84,20 +82,20 @@ const RegistrationPage = (props) => {
                 <div>
                     <input
                         type="password"
-                        placeholder="Пароли должны совпадать"
+                        placeholder={t('passwordsSholdBeSame')}
                         id="confirm"
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.confirm}
                     />
-                    <label htmlFor="confirm">Подтвердите пароль</label>
+                    <label htmlFor="confirm">{t('confirmPassword')}</label>
                     {formik.touched.confirm && formik.errors.confirm && (
                         <div style={{ color: "red" }}>
                             {formik.errors.confirm}
                         </div>
                     )}
                 </div>
-                <input type="submit" value="Submit" />
+                <input type="submit" value={t('submit')} />
                 {authError && <div style={{ color: "red" }}>{authError}</div>}
             </form>
         </>
