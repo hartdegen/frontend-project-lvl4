@@ -1,9 +1,8 @@
-import React from "react";
 import { I18nextProvider } from 'react-i18next';
 import instance from './i18nInstance.js';
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { createContext } from "react";
+import React, { createContext } from "react";
 import { Provider } from "react-redux";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";

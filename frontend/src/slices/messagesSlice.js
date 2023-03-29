@@ -16,7 +16,6 @@ const messagesSlice = createSlice({
     extraReducers: (builder) => {
         builder.addCase(removeChannel, (state, action) => {
             // console.log(11111, current(state)); // state is proxy object, `current()` from "@reduxjs/toolkit" make it fine
-            // console.log(22222, action);
             const channelId = action.payload;
             const messagesNotFromRemovedChannel = Object.values(state.entities).filter((e) => e.channelId !== channelId);
             messagesAdapter.setAll(state, messagesNotFromRemovedChannel);

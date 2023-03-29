@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import filter from "leo-profanity";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
@@ -26,6 +27,7 @@ import { addMessages, addMessage } from "../slices/messagesSlice.js";
 import RenameChannelButton from "./chatPageElements/RenameChannelButton.jsx";
 import RemoveChannelButton from "./chatPageElements/RemoveChannelButton.jsx";
 
+filter.loadDictionary("ru");
 const socket = io();
 const notify = (text) => toast(text);
 const logOut = () => {
@@ -85,6 +87,7 @@ const MainPage = () => {
             }
         };
         updateData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const changeChannelName = (e) => setChannelName(e.target.value);
@@ -96,7 +99,7 @@ const MainPage = () => {
             channelId: currentChannelId,
             id: _.uniqueId(),
             username: username,
-            body: `${time} ${username}: ${messageText}`,
+            body: `${time} ${username}: ${filter.clean(messageText)}`,
         };
         socket.emit("newMessage", message, (response) => {
             console.log(`newMessage RESPONSE STATUS`, response); // ok
@@ -141,7 +144,7 @@ const MainPage = () => {
                             <Button type="submit">+</Button>
                         </InputGroup>
                     </Form>
-                    <ListGroup style={{ maxHeight: `250px`, maxWidth: `250px`, overflow: `auto` }} defaultActiveKey="#link1">
+                    <ListGroup style={{ maxHeight: `300px`, maxWidth: `250px`, overflow: `auto` }} defaultActiveKey="#link1">
                         {stateChannels.map((channel) => (
                             <ListGroup.Item key={channel.id} href={`#link${channel.id}`}>
                                 <Dropdown as={ButtonGroup} className="d-flex">
@@ -176,7 +179,7 @@ const MainPage = () => {
                             <Button type="submit">+</Button>
                         </InputGroup>
                     </Form>
-                    <ListGroup style={{ maxHeight: `250px`, maxWidth: `250px`, overflow: `auto` }}>
+                    <ListGroup style={{ maxHeight: `300px`, maxWidth: `250px`, overflow: `auto` }}>
                         {stateMessages
                             .filter((message) => currentChannelId === message.channelId)
                             .map((message) => (

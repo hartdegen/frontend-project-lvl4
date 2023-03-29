@@ -18,6 +18,14 @@ const object = {
 
         pageNotExist: "Этой страницы не существует",
 
+        delete: "Удалить",
+        deleteChannel: "Удалить канал",
+        rename: "Переименовать",
+        renameChannel: "Переименовать канал",
+        setNewChannelName: "Введите новое название",
+        areYouSure: "Уверены?",
+        cancel: "Отменить",
+
         logOut: "Выйти",
         addNewChannel: "Добавить новый канал",
         yourUsername: "Вы вошли как",

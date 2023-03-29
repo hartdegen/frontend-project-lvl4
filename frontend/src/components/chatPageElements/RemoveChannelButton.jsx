@@ -3,21 +3,24 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 
-const RemoveChannelButton = ( { channelId, handleRemoveChannel } ) => {
+import { useTranslation } from "react-i18next";
+
+const RemoveChannelButton = ({ channelId, handleRemoveChannel }) => {
+    const { t } = useTranslation();
     const [show, setShow] = useState(null);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     return (
         <>
-            <Dropdown.Item onClick={handleShow}>Удалить</Dropdown.Item>
+            <Dropdown.Item onClick={handleShow}>{t("delete")}</Dropdown.Item>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Удалить канал</Modal.Title>
+                    <Modal.Title>{t("deleteChannel")}</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>Уверены?</Modal.Body>
+                <Modal.Body>{t("areYouSure")}</Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>
-                        Отменить
+                        {t("cancel")}
                     </Button>
                     <Button
                         variant="danger"
@@ -26,7 +29,7 @@ const RemoveChannelButton = ( { channelId, handleRemoveChannel } ) => {
                             handleClose();
                         }}
                     >
-                        Удалить
+                        {t("delete")}
                     </Button>
                 </Modal.Footer>
             </Modal>
