@@ -1,3 +1,6 @@
+import React from "react";
 import ChatPage from './ChatPage.jsx';
 
-export default () => <ChatPage/>;
+const App = () => <ChatPage />
+
+export default App;

@@ -1,10 +1,14 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.min.css";
 
 import Button from "react-bootstrap/Button";
-import SplitButton from "react-bootstrap/SplitButton";
 import ListGroup from "react-bootstrap/ListGroup";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
+import Dropdown from "react-bootstrap/Dropdown";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
 
 import React, { useContext, useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -23,12 +27,13 @@ import RenameChannelButton from "./chatPageElements/RenameChannelButton.jsx";
 import RemoveChannelButton from "./chatPageElements/RemoveChannelButton.jsx";
 
 const socket = io();
+const notify = (text) => toast(text);
 const logOut = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
 };
 
-const MainPage = (props) => {
+const MainPage = () => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const [username, setUsername] = useState();
@@ -40,24 +45,26 @@ const MainPage = (props) => {
     const stateChannels = useSelector(channelsSelectors.selectAll);
     const stateMessages = useSelector(messagesSelectors.selectAll);
 
-    socket.on("newMessage", (message) => {
-        console.log(`SOCKET.ON newMessage`, message); // => { body: "new message", channelId: 7, id: 8, username: "admin" }
-        dispatch(addMessage(message));
-    });
-    socket.on("newChannel", (channel) => {
-        console.log(`SOCKET.ON newChannel`, channel); // { id: 6, name: "new channel", removable: true }
-        dispatch(addChannel(channel));
-    });
-    socket.on("removeChannel", (channel) => {
-        console.log(`SOCKET.ON removeChannel`, channel); // { id: 6 }
-        dispatch(removeChannel(channel.id));
-    });
-    socket.on("renameChannel", (channel) => {
-        console.log(`SOCKET.ON renameChannel`, channel); // { id: 7, name: "new name channel", removable: true }
-        dispatch(renameChannel({ id: channel.id, changes: { name: channel.name } }));
-    });
-
     useEffect(() => {
+        socket.on("newMessage", (message) => {
+            console.log(`SOCKET.ON newMessage`, message); // => { body: "new message", channelId: 7, id: 8, username: "admin" }
+            dispatch(addMessage(message));
+        });
+        socket.on("newChannel", (channel) => {
+            console.log(`SOCKET.ON newChannel`, channel); // { id: 6, name: "new channel", removable: true }
+            dispatch(addChannel(channel));
+            notify(t("newChannelCreated"));
+        });
+        socket.on("removeChannel", (channel) => {
+            console.log(`SOCKET.ON removeChannel`, channel); // { id: 6 }
+            dispatch(removeChannel(channel.id));
+            notify(t("channelRemoved"));
+        });
+        socket.on("renameChannel", (channel) => {
+            console.log(`SOCKET.ON renameChannel`, channel); // { id: 7, name: "new name channel", removable: true }
+            dispatch(renameChannel({ id: channel.id, changes: { name: channel.name } }));
+            notify(t("channelRenamed"));
+        });
         const updateData = async () => {
             try {
                 const token = localStorage.getItem("token");
@@ -74,6 +81,7 @@ const MainPage = (props) => {
                 console.log(`useEffect, messages`, messages);
             } catch (err) {
                 console.error(`ERROR CATCH`, err);
+                notify(t("error"));
             }
         };
         updateData();
@@ -121,44 +129,58 @@ const MainPage = (props) => {
 
     return isAuth() ? (
         <>
+            <ToastContainer />
             <div className="chatPage d-flex">
                 <div className="channels flex-column">
-                    <Link onClick={logOut} to="/login">{t("logOut")}</Link>
+                    <Link onClick={logOut} to="/login">
+                        {t("logOut")}
+                    </Link>
                     <Form onSubmit={handleNewChannel}>
                         <InputGroup>
                             <Form.Control placeholder={t("addNewChannel")} value={channelName} onChange={changeChannelName} />
                             <Button type="submit">+</Button>
                         </InputGroup>
                     </Form>
-                    <ul>
+                    <ListGroup style={{ maxHeight: `250px`, maxWidth: `250px`, overflow: `auto` }} defaultActiveKey="#link1">
                         {stateChannels.map((channel) => (
-                            <li key={channel.id}>
-                                <SplitButton title={channel.name} onClick={() => { setCurrentChannelId(channel.id); }}>
+                            <ListGroup.Item key={channel.id} href={`#link${channel.id}`}>
+                                <Dropdown as={ButtonGroup} className="d-flex">
+                                    <Button
+                                        onClick={() => {
+                                            setCurrentChannelId(channel.id);
+                                        }}
+                                    >
+                                        {channel.name}
+                                    </Button>
+
                                     {channel.removable && (
                                         <>
-                                            {RemoveChannelButton(channel.id, handleRemoveChannel)}
-                                            {RenameChannelButton(channel.id, handleRenameChannel)}
+                                            <Dropdown.Toggle />
+                                            <Dropdown.Menu>
+                                                <RemoveChannelButton channelId={channel.id} handleRemoveChannel={handleRemoveChannel} />
+                                                <RenameChannelButton channelId={channel.id} handleRenameChannel={handleRenameChannel} />
+                                            </Dropdown.Menu>
                                         </>
                                     )}
-                                </SplitButton>
-                            </li>
+                                </Dropdown>
+                            </ListGroup.Item>
                         ))}
-                    </ul>
+                    </ListGroup>
                 </div>
 
                 <div className="messages flex-column">
-                    <div>{t("yourUsername")} <b>{username}</b></div>
+                    {t("yourUsername")} <b>{username}</b>
                     <Form onSubmit={handleNewMessage}>
                         <InputGroup>
                             <Form.Control placeholder={t("typeMessage")} value={messageText} onChange={changeMessageText} />
                             <Button type="submit">+</Button>
                         </InputGroup>
                     </Form>
-                    <ListGroup style={{ maxHeight: `300px`, overflow: `auto` }}>
+                    <ListGroup style={{ maxHeight: `250px`, maxWidth: `250px`, overflow: `auto` }}>
                         {stateMessages
                             .filter((message) => currentChannelId === message.channelId)
                             .map((message) => (
-                                <p key={message.id}>{message.body}</p>
+                                <ListGroup.Item key={message.id}>{message.body}</ListGroup.Item>
                             ))}
                     </ListGroup>
                 </div>

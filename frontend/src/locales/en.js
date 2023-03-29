@@ -22,6 +22,11 @@ const object = {
         addNewChannel: "Add New Channel",
         yourUsername: "You logged as",
         typeMessage: "Type your message",
+
+        newChannelCreated: "New channel created",
+        channelRemoved: "Channel was removed",
+        channelRenamed: "Channel was renamed",
+        error: "Something is wrong, check connection",
     },
 };
 

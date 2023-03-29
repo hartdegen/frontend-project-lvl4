@@ -4,7 +4,7 @@ import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import Form from "react-bootstrap/Form";
 
-const RenameChannelButton = (channelId, handleRenameChannel) => {
+const RenameChannelButton = ( { channelId, handleRenameChannel } ) => {
     const [newChannelName, setNewChannelName] = useState(``);
     const changeNewChannelName = (e) => setNewChannelName(e.target.value);
     const handleSubmitDropdownModal = (e) => (channelId) => {

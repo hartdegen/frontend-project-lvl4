@@ -6,7 +6,7 @@ import axios from "axios";
 import { Link, Navigate } from "react-router-dom";
 import { UserContext } from "../index.js";
 
-const LoginPage = (props) => {
+const LoginPage = () => {
     const { t } = useTranslation();
     const isAuth = useContext(UserContext);
     const [authError, setAuthError] = useState();

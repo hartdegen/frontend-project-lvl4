@@ -3,7 +3,7 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 
-const RemoveChannelButton = (channelId, handleRemoveChannel) => {
+const RemoveChannelButton = ( { channelId, handleRemoveChannel } ) => {
     const [show, setShow] = useState(null);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);

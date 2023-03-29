@@ -6,7 +6,7 @@ import * as Yup from "yup";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-const RegistrationPage = (props) => {
+const RegistrationPage = () => {
     const [authError, setAuthError] = useState();
     const { t } = useTranslation();
     const navigate = useNavigate();

@@ -22,6 +22,11 @@ const object = {
         addNewChannel: "Добавить новый канал",
         yourUsername: "Вы вошли как",
         typeMessage: "Введите сообщение",
+
+        newChannelCreated: "Создан новый канал",
+        channelRemoved: "Канал удален",
+        channelRenamed: "Канал переименован",
+        error: "Что-то пошло не так, проверьте соединение",
     },
 };
 
