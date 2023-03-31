@@ -1,10 +1,12 @@
-import { useTranslation } from 'react-i18next';
+import axios from "axios";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+
+import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import axios from "axios";
-import { Link } from "react-router-dom";
 
 const RegistrationPage = () => {
     const [authError, setAuthError] = useState();
@@ -18,22 +20,25 @@ const RegistrationPage = () => {
         },
         validationSchema: Yup.object({
             username: Yup.string()
-                .min(3, `${t('min3Symbols')}`)
-                .max(15, `${t('max15Symbols')}`)
-                .required(`${t('required')}`),
+                .min(3, `${t("from3to20")}`)
+                .max(20, `${t("from3to20")}`)
+                .required(`${t("required")}`),
             password: Yup.string()
-                .min(3, `${t('min3Symbols')}`)
-                .required(`${t('required')}`),
+                .min(6, `${t("min6Symbols")}`)
+                .required(`${t("required")}`),
             confirm: Yup.string()
-                .min(3, `${t('min3Symbols')}`)
-                .required(`${t('required')}`)
-                .oneOf([Yup.ref("password")], `${t('passwordsSholdBeSame')}`),
+                .min(6, `${t("min6Symbols")}`)
+                .required(`${t("required")}`)
+                .oneOf([Yup.ref("password")], `${t("passwordsSholdBeSame")}`),
         }),
         onSubmit: async (values) => {
             setAuthError("");
             try {
-                const { data } = await axios.post("/api/v1/signup", values);
-                console.log(`data from /api/v1/signup \n`, data);
+                const {
+                    data: { token, username },
+                } = await axios.post("/api/v1/signup", values);
+                localStorage.setItem("token", token);
+                localStorage.setItem("username", username);
                 navigate("/");
             } catch (err) {
                 console.error(`ERROR CATCH`, err);
@@ -43,64 +48,30 @@ const RegistrationPage = () => {
     });
 
     return (
-        <>
-            <Link to="/">{t('toMainPage')}</Link>
-            <form onSubmit={formik.handleSubmit}>
-                <div>
-                    <div>{t('registration')}</div>
-                    <input
-                        type="text"
-                        placeholder={t('from3to20')}
-                        id="username"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.username}
-                    />
-                    <label htmlFor="username">{t('username')}</label>
-                    {formik.touched.username && formik.errors.username && (
-                        <div style={{ color: "red" }}>
-                            {formik.errors.username}
-                        </div>
-                    )}
-                </div>
-                <div>
-                    <input
-                        type="password"
-                        placeholder={t('minimum3symbols')}
-                        id="password"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.password}
-                    />
-                    <label htmlFor="password">{t('password')}</label>
-                    {formik.touched.password && formik.errors.password && (
-                        <div style={{ color: "red" }}>
-                            {formik.errors.password}
-                        </div>
-                    )}
-                </div>
-                <div>
-                    <input
-                        type="password"
-                        placeholder={t('passwordsSholdBeSame')}
-                        id="confirm"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.confirm}
-                    />
-                    <label htmlFor="confirm">{t('confirmPassword')}</label>
-                    {formik.touched.confirm && formik.errors.confirm && (
-                        <div style={{ color: "red" }}>
-                            {formik.errors.confirm}
-                        </div>
-                    )}
-                </div>
-                <input type="submit" value={t('submit')} />
-                {authError && <div style={{ color: "red" }}>{authError}</div>}
-            </form>
-        </>
+        <Form onSubmit={formik.handleSubmit}>
+            <h1>{t("registration")}</h1>
+            <Form.Floating>
+                <Form.Control type="text" placeholder={t("username")} id="username" isInvalid={formik.touched.username && formik.errors.username} onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.username} />
+                <label htmlFor="username">{t("username")}</label>
+                <Form.Control.Feedback type="invalid" tooltip>{formik.touched.username && formik.errors.username}</Form.Control.Feedback>
+            </Form.Floating>
+            <br></br>
+            <Form.Floating>
+                <Form.Control type="password" placeholder={t("password")} id="password" isInvalid={formik.touched.password && formik.errors.password} onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.password} />
+                <label htmlFor="password">{t("password")}</label>
+                <Form.Control.Feedback type="invalid" tooltip>{formik.touched.password && formik.errors.password}</Form.Control.Feedback>
+            </Form.Floating>
+            <br></br>
+            <Form.Floating>
+                <Form.Control type="password" placeholder={t("confirmPassword")} id="confirm" isInvalid={formik.touched.confirm && formik.errors.confirm} onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.confirm} />
+                <label htmlFor="confirm">{t("confirmPassword")}</label>
+                <Form.Control.Feedback type="invalid" tooltip>{formik.touched.confirm && formik.errors.confirm}</Form.Control.Feedback>
+            </Form.Floating>
+            <br></br>
+            <Button type="submit">{t("signUp")}</Button>
+            {authError && <div style={{ color: "red" }}>{authError}</div>}
+        </Form>
     );
 };
 
 export default RegistrationPage;
-

@@ -1,66 +1,60 @@
-import { useTranslation } from "react-i18next";
-import React, { useContext, useState } from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import axios from "axios";
-import { Link, Navigate } from "react-router-dom";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+
+import { useTranslation } from "react-i18next";
+import React, { useState, useContext } from "react";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { UserContext } from "../index.js";
 
 const LoginPage = () => {
     const { t } = useTranslation();
     const isAuth = useContext(UserContext);
     const [authError, setAuthError] = useState();
-    const formik = useFormik({
-        initialValues: {
-            username: "",
-            password: "",
-        },
-        validationSchema: Yup.object({
-            username: Yup.string()
-                .min(3, `${t("min3Symbols")}`)
-                .max(15, `${t("max15Symbols")}`)
-                .required(`${t("required")}`),
-            password: Yup.string()
-                .min(3, `${t("min3Symbols")}`)
-                .required(`${t("required")}`),
-        }),
-        onSubmit: async (values) => {
-            setAuthError("");
-            try {
-                const {
-                    data: { token, username },
-                } = await axios.post("/api/v1/login", values);
-                localStorage.setItem("token", token);
-                localStorage.setItem("username", username);
-                <Navigate to="/" />;
-            } catch (err) {
-                console.error(`ERROR CATCH`, err);
-                setAuthError(`${err.message} - ${err.response.statusText}`);
-            }
-        },
-    });
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const changeUsername = (e) => setUsername(e.target.value);
+    const changePassword = (e) => setPassword(e.target.value);
+    const values = { username, password };
+    const navigate = useNavigate();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setAuthError("");
+        try {
+            const {
+                data: { token, username },
+            } = await axios.post("/api/v1/login", values);
+            localStorage.setItem("token", token);
+            localStorage.setItem("username", username);
+            navigate("/");
+        } catch (err) {
+            console.error(`ERROR CATCH`, err);
+            err.response.statusText === `Unauthorized` ? setAuthError(t("wrongUsernamePassword")) : setAuthError(`${err.message} - ${err.response.statusText}`);
+        }
+    };
 
     return isAuth() ? (
         <Navigate to="/" />
     ) : (
         <>
-            <Link to="/">{t("toMainPage")}</Link>
-            <br />
-            <Link to="/signup">{t("toRegistrationPage")}</Link>
-            <form onSubmit={formik.handleSubmit}>
-                <div>
-                    <input type="text" placeholder={t('typeUsername')} id="username" onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.username} />
-                    <label htmlFor="username">{t("username")}</label>
-                    {formik.touched.username && formik.errors.username && <div style={{ color: "red" }}>{formik.errors.username}</div>}
-                </div>
-                <div>
-                    <input type="password" placeholder={t('typePassword')} id="password" onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.password} />
+            <Form onSubmit={handleSubmit}>
+                <h1>{t("logOn")}</h1>
+                <Form.Floating>
+                    <Form.Control type="text" placeholder={t("yourNick")} id="username" onChange={changeUsername} value={username} />
+                    <label htmlFor="username">{t("yourNick")}</label>
+                </Form.Floating>
+                <br></br>
+                <Form.Floating>
+                    <Form.Control type="password" placeholder={t("password")} id="password" onChange={changePassword} value={password} />
                     <label htmlFor="password">{t("password")}</label>
-                    {formik.touched.password && formik.errors.password && <div style={{ color: "red" }}>{formik.errors.password}</div>}
-                </div>
-                <input type="submit" value={t('submit')} />
+                </Form.Floating>
+                <br></br>
+                <Button type="submit">{t("logOn")}</Button>
                 {authError && <div style={{ color: "red" }}>{authError}</div>}
-            </form>
+            </Form>
+            <p>
+                <Link to="/signup">{t("registration")}</Link>
+            </p>
         </>
     );
 };

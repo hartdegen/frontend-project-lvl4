@@ -55,7 +55,7 @@ const MainPage = () => {
         socket.on("newChannel", (channel) => {
             console.log(`SOCKET.ON newChannel`, channel); // { id: 6, name: "new channel", removable: true }
             dispatch(addChannel(channel));
-            notify(t("newChannelCreated"));
+            notify(t("channelCreated"));
         });
         socket.on("removeChannel", (channel) => {
             console.log(`SOCKET.ON removeChannel`, channel); // { id: 6 }
@@ -87,7 +87,7 @@ const MainPage = () => {
             }
         };
         updateData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const changeChannelName = (e) => setChannelName(e.target.value);
@@ -134,7 +134,7 @@ const MainPage = () => {
         <>
             <ToastContainer />
             <div className="chatPage d-flex">
-                <div className="channels flex-column">
+                <div className="channels flex-column" style={{ height: `800px`, width: `250px`, overflow: `auto` }}>
                     <Link onClick={logOut} to="/login">
                         {t("logOut")}
                     </Link>
@@ -144,7 +144,7 @@ const MainPage = () => {
                             <Button type="submit">+</Button>
                         </InputGroup>
                     </Form>
-                    <ListGroup style={{ maxHeight: `300px`, maxWidth: `250px`, overflow: `auto` }} defaultActiveKey="#link1">
+                    <ListGroup defaultActiveKey="#link1">
                         {stateChannels.map((channel) => (
                             <ListGroup.Item key={channel.id} href={`#link${channel.id}`}>
                                 <Dropdown as={ButtonGroup} className="d-flex">
@@ -152,8 +152,9 @@ const MainPage = () => {
                                         onClick={() => {
                                             setCurrentChannelId(channel.id);
                                         }}
+                                        style={{ overflow: `hidden` }}
                                     >
-                                        {channel.name}
+                                        {`#${channel.name}`}
                                     </Button>
 
                                     {channel.removable && (
@@ -171,15 +172,15 @@ const MainPage = () => {
                     </ListGroup>
                 </div>
 
-                <div className="messages flex-column">
-                    {t("yourUsername")} <b>{username}</b>
+                <div className="messages flex-column" style={{ height: `800px`, width: `300px`, overflow: `auto` }}>
+                    {t("yourNick")} <b>{username}</b>
                     <Form onSubmit={handleNewMessage}>
                         <InputGroup>
                             <Form.Control placeholder={t("typeMessage")} value={messageText} onChange={changeMessageText} />
-                            <Button type="submit">+</Button>
+                            <Button type="submit">{t("send")}</Button>
                         </InputGroup>
                     </Form>
-                    <ListGroup style={{ maxHeight: `300px`, maxWidth: `250px`, overflow: `auto` }}>
+                    <ListGroup style={{ overflowWrap: `break-word` }}>
                         {stateMessages
                             .filter((message) => currentChannelId === message.channelId)
                             .map((message) => (

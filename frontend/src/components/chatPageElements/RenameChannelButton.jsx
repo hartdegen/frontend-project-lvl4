@@ -44,7 +44,7 @@ const RenameChannelButton = ({ channelId, handleRenameChannel }) => {
                             handleClose();
                         }}
                     >
-                        {t("rename")}
+                        {t("send")}
                     </Button>
                 </Modal.Footer>
             </Modal>
