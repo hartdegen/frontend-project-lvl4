@@ -1,5 +1,7 @@
-import { I18nextProvider } from 'react-i18next';
-import instance from './i18nInstance.js';
+import { I18nextProvider } from "react-i18next";
+import instance from "./i18nInstance.js";
+
+import { Provider as ProviderRollbar, ErrorBoundary } from "@rollbar/react";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { createContext } from "react";
@@ -13,6 +15,11 @@ import LoginPage from "./components/LoginPage.jsx";
 import RegistrationPage from "./components/RegistrationPage.jsx";
 
 import store from "./slices/index.js";
+
+const rollbarConfig = {
+    accessToken: "efc0d443c8a24fcdbbfddea533414883",
+    environment: "testenv",
+};
 
 export const UserContext = createContext();
 const isAuth = () => localStorage.getItem("token") !== null;
@@ -36,12 +43,17 @@ const mountNode = document.getElementById("root");
 const root = ReactDOM.createRoot(mountNode);
 
 root.render(
-    <Provider store={store}>
-        <UserContext.Provider value={isAuth}>
-            <I18nextProvider i18n={instance}>
-                <b>Test Header</b><br></br>
-                <RouterProvider router={router} />
-            </I18nextProvider>
-        </UserContext.Provider>
-    </Provider>
+    <ProviderRollbar config={rollbarConfig}>
+        <ErrorBoundary>
+            <Provider store={store}>
+                <UserContext.Provider value={isAuth}>
+                    <I18nextProvider i18n={instance}>
+                        <b>Header</b>
+                        <br></br>
+                        <RouterProvider router={router} />
+                    </I18nextProvider>
+                </UserContext.Provider>
+            </Provider>
+        </ErrorBoundary>
+    </ProviderRollbar>
 );
