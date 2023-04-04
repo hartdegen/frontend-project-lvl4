@@ -29,7 +29,9 @@ const LoginPage = () => {
             navigate("/");
         } catch (err) {
             console.error(`ERROR CATCH`, err);
-            err.response.statusText === `Unauthorized` ? setAuthError(t("wrongUsernamePassword")) : setAuthError(`${err.message} - ${err.response.statusText}`);
+            err.response.statusText === `Unauthorized`
+                ? setAuthError(t("wrongUsernamePassword"))
+                : setAuthError(`${err.message} - ${err.response.statusText}`);
         }
     };
 
@@ -37,16 +39,28 @@ const LoginPage = () => {
         <Navigate to="/" />
     ) : (
         <>
-            <Form onSubmit={handleSubmit}>
+            <Form onSubmit={handleSubmit} style={{ width: `500px` }}>
                 <h1>{t("logOn")}</h1>
                 <Form.Floating>
-                    <Form.Control type="text" placeholder={t("yourNick")} id="username" onChange={changeUsername} value={username} />
-                    <label htmlFor="username">{t("yourNick")}</label>
+                    <Form.Control
+                        type="text"
+                        placeholder={t("yourNick")}
+                        id="username"
+                        onChange={changeUsername}
+                        value={username}
+                    />
+                    <Form.Label htmlFor="username">{t("yourNick")}</Form.Label>
                 </Form.Floating>
                 <br></br>
                 <Form.Floating>
-                    <Form.Control type="password" placeholder={t("password")} id="password" onChange={changePassword} value={password} />
-                    <label htmlFor="password">{t("password")}</label>
+                    <Form.Control
+                        type="password"
+                        placeholder={t("password")}
+                        id="password"
+                        onChange={changePassword}
+                        value={password}
+                    />
+                    <Form.Label htmlFor="password">{t("password")}</Form.Label>
                 </Form.Floating>
                 <br></br>
                 <Button type="submit">{t("logOn")}</Button>

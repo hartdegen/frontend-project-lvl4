@@ -48,24 +48,60 @@ const RegistrationPage = () => {
     });
 
     return (
-        <Form onSubmit={formik.handleSubmit}>
+        <Form onSubmit={formik.handleSubmit} style={{ width: `500px` }}>
             <h1>{t("registration")}</h1>
             <Form.Floating>
-                <Form.Control type="text" placeholder={t("username")} id="username" isInvalid={formik.touched.username && formik.errors.username} onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.username} />
-                <label htmlFor="username">{t("username")}</label>
-                <Form.Control.Feedback type="invalid" tooltip>{formik.touched.username && formik.errors.username}</Form.Control.Feedback>
+                <Form.Control
+                    type="text"
+                    placeholder={t("username")}
+                    id="username"
+                    isInvalid={
+                        formik.touched.username && formik.errors.username
+                    }
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.username}
+                />
+                <Form.Label htmlFor="username">{t("username")}</Form.Label>
+                <Form.Control.Feedback type="invalid" tooltip>
+                    {formik.touched.username && formik.errors.username}
+                </Form.Control.Feedback>
             </Form.Floating>
             <br></br>
             <Form.Floating>
-                <Form.Control type="password" placeholder={t("password")} id="password" isInvalid={formik.touched.password && formik.errors.password} onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.password} />
-                <label htmlFor="password">{t("password")}</label>
-                <Form.Control.Feedback type="invalid" tooltip>{formik.touched.password && formik.errors.password}</Form.Control.Feedback>
+                <Form.Control
+                    type="password"
+                    placeholder={t("password")}
+                    id="password"
+                    isInvalid={
+                        formik.touched.password && formik.errors.password
+                    }
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.password}
+                />
+                <Form.Label htmlFor="password">{t("password")}</Form.Label>
+                <Form.Control.Feedback type="invalid" tooltip>
+                    {formik.touched.password && formik.errors.password}
+                </Form.Control.Feedback>
             </Form.Floating>
             <br></br>
             <Form.Floating>
-                <Form.Control type="password" placeholder={t("confirmPassword")} id="confirm" isInvalid={formik.touched.confirm && formik.errors.confirm} onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.confirm} />
-                <label htmlFor="confirm">{t("confirmPassword")}</label>
-                <Form.Control.Feedback type="invalid" tooltip>{formik.touched.confirm && formik.errors.confirm}</Form.Control.Feedback>
+                <Form.Control
+                    type="password"
+                    placeholder={t("confirmPassword")}
+                    id="confirm"
+                    isInvalid={formik.touched.confirm && formik.errors.confirm}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.confirm}
+                />
+                <Form.Label htmlFor="confirm">
+                    {t("confirmPassword")}
+                </Form.Label>
+                <Form.Control.Feedback type="invalid" tooltip>
+                    {formik.touched.confirm && formik.errors.confirm}
+                </Form.Control.Feedback>
             </Form.Floating>
             <br></br>
             <Button type="submit">{t("signUp")}</Button>

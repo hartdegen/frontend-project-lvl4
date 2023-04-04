@@ -26,6 +26,7 @@ import { addMessages, addMessage } from "../slices/messagesSlice.js";
 
 import RenameChannelButton from "./chatPageElements/RenameChannelButton.jsx";
 import RemoveChannelButton from "./chatPageElements/RemoveChannelButton.jsx";
+import AddChannelButton from "./chatPageElements/AddChannelButton.jsx";
 
 filter.loadDictionary("ru");
 const socket = io();
@@ -40,7 +41,6 @@ const MainPage = () => {
     const dispatch = useDispatch();
     const [username, setUsername] = useState();
     const [messageText, setMessageText] = useState();
-    const [channelName, setChannelName] = useState();
     const [currentChannelId, setCurrentChannelId] = useState();
     const isAuth = useContext(UserContext);
 
@@ -55,17 +55,14 @@ const MainPage = () => {
         socket.on("newChannel", (channel) => {
             console.log(`SOCKET.ON newChannel`, channel); // { id: 6, name: "new channel", removable: true }
             dispatch(addChannel(channel));
-            notify(t("channelCreated"));
         });
         socket.on("removeChannel", (channel) => {
             console.log(`SOCKET.ON removeChannel`, channel); // { id: 6 }
             dispatch(removeChannel(channel.id));
-            notify(t("channelRemoved"));
         });
         socket.on("renameChannel", (channel) => {
             console.log(`SOCKET.ON renameChannel`, channel); // { id: 7, name: "new name channel", removable: true }
             dispatch(renameChannel({ id: channel.id, changes: { name: channel.name } }));
-            notify(t("channelRenamed"));
         });
         const updateData = async () => {
             try {
@@ -90,11 +87,10 @@ const MainPage = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const changeChannelName = (e) => setChannelName(e.target.value);
     const changeMessageText = (e) => setMessageText(e.target.value);
     const handleNewMessage = (e) => {
         e.preventDefault();
-        const time = `${new Date().getHours()}:${new Date().getMinutes()}`;
+        const time = `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`;
         const message = {
             channelId: currentChannelId,
             id: _.uniqueId(),
@@ -106,20 +102,20 @@ const MainPage = () => {
             setMessageText("");
         });
     };
-    const handleNewChannel = (e) => {
-        e.preventDefault();
-        const isNameAlreadyExist = stateChannels.some((channel) => channel.name === channelName);
+    const handleNewChannel = (name) => {
+        const isNameAlreadyExist = stateChannels.some((channel) => channel.name === name);
         if (isNameAlreadyExist) return;
-        socket.emit("newChannel", { name: channelName }, (response) => {
+        socket.emit("newChannel", { name }, (response) => {
             console.log(`newChannel RESPONSE STATUS`, response); // ok
             setCurrentChannelId(response.data.id);
-            setChannelName("");
+            notify(t("channelCreated"));
         });
     };
     const handleRemoveChannel = (id) => {
         socket.emit("removeChannel", { id }, (response) => {
             console.log(`removeChannel RESPONSE STATUS`, response); // ok
             setCurrentChannelId(1);
+            notify(t("channelRemoved"));
         });
     };
     const handleRenameChannel = (id, name) => {
@@ -127,6 +123,7 @@ const MainPage = () => {
         if (isNameAlreadyExist) return;
         socket.emit("renameChannel", { id, name }, (response) => {
             console.log(`renameChannel RESPONSE STATUS`, response); // ok
+            notify(t("channelRenamed"));
         });
     };
 
@@ -138,31 +135,22 @@ const MainPage = () => {
                     <Link onClick={logOut} to="/login">
                         {t("logOut")}
                     </Link>
-                    <Form onSubmit={handleNewChannel}>
-                        <InputGroup>
-                            <Form.Control placeholder={t("addNewChannel")} value={channelName} onChange={changeChannelName} />
-                            <Button type="submit">+</Button>
-                        </InputGroup>
-                    </Form>
+                    <br></br>
+                    <AddChannelButton handleNewChannel={handleNewChannel} />
                     <ListGroup defaultActiveKey="#link1">
                         {stateChannels.map((channel) => (
                             <ListGroup.Item key={channel.id} href={`#link${channel.id}`}>
                                 <Dropdown as={ButtonGroup} className="d-flex">
-                                    <Button
-                                        onClick={() => {
-                                            setCurrentChannelId(channel.id);
-                                        }}
-                                        style={{ overflow: `hidden` }}
-                                    >
+                                    <Button onClick={() => { setCurrentChannelId(channel.id); }} style={{ overflow: `hidden` }}>
                                         {`#${channel.name}`}
                                     </Button>
 
                                     {channel.removable && (
                                         <>
-                                            <Dropdown.Toggle />
+                                            <Dropdown.Toggle><span className="visually-hidden">{t("channelControl")}</span></Dropdown.Toggle>
                                             <Dropdown.Menu>
                                                 <RemoveChannelButton channelId={channel.id} handleRemoveChannel={handleRemoveChannel} />
-                                                <RenameChannelButton channelId={channel.id} handleRenameChannel={handleRenameChannel} />
+                                                <RenameChannelButton channel={channel} handleRenameChannel={handleRenameChannel} />
                                             </Dropdown.Menu>
                                         </>
                                     )}
@@ -176,16 +164,14 @@ const MainPage = () => {
                     {t("yourNick")} <b>{username}</b>
                     <Form onSubmit={handleNewMessage}>
                         <InputGroup>
-                            <Form.Control placeholder={t("typeMessage")} value={messageText} onChange={changeMessageText} />
+                            <Form.Control placeholder={t("typeMessage")} aria-label="Новое сообщение" value={messageText} onChange={changeMessageText} />
                             <Button type="submit">{t("send")}</Button>
                         </InputGroup>
                     </Form>
                     <ListGroup style={{ overflowWrap: `break-word` }}>
                         {stateMessages
                             .filter((message) => currentChannelId === message.channelId)
-                            .map((message) => (
-                                <ListGroup.Item key={message.id}>{message.body}</ListGroup.Item>
-                            ))}
+                            .map((message) => <ListGroup.Item key={message.id}>{message.body}</ListGroup.Item>)}
                     </ListGroup>
                 </div>
             </div>
