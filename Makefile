@@ -1,6 +1,5 @@
 install:
-	npm install
-	npm install --prefix ./frontend/
+	npm ci
 back:
 	npm run build
-	npm run backendStart
+	npm run start

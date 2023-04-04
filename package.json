@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "make install && npm run build --prefix ./frontend/",
-    "backendStart": "npx start-server -s ./frontend/build",
-    "frontendStart": "npm start --prefix ./frontend/"
+    "build": "npm run build --prefix ./frontend/",
+    "start": "npx start-server -s ./frontend/build",
+    "frontendStart": "npm start --prefix ./frontend/",
+    "postinstall": "cd frontend && npm ci"
   },
   "author": "",
   "license": "ISC",
