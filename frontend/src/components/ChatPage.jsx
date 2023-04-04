@@ -28,7 +28,6 @@ import RenameChannelButton from "./chatPageElements/RenameChannelButton.jsx";
 import RemoveChannelButton from "./chatPageElements/RemoveChannelButton.jsx";
 import AddChannelButton from "./chatPageElements/AddChannelButton.jsx";
 
-filter.loadDictionary("ru");
 const socket = io();
 const notify = (text) => toast(text);
 const logOut = () => {
