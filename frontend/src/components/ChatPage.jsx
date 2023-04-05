@@ -62,12 +62,10 @@ const MainPage = () => {
     socket.on('newChannel', (channel) => {
       console.log('SOCKET.ON newChannel', channel); // { id: 6, name: "new channel", removable: true }
       dispatch(addChannel(channel));
-      notify(t('channelCreated'));
     });
     socket.on('removeChannel', (channel) => {
       console.log('SOCKET.ON removeChannel', channel); // { id: 6 }
       dispatch(removeChannel(channel.id));
-      notify(t('channelRemoved'));
     });
     socket.on('renameChannel', (channel) => {
       console.log('SOCKET.ON renameChannel', channel); // { id: 7, name: "new name channel", removable: true }
@@ -77,7 +75,6 @@ const MainPage = () => {
           changes: { name: channel.name },
         }),
       );
-      notify(t('channelRenamed'));
     });
     const updateData = async () => {
       try {
@@ -125,12 +122,14 @@ const MainPage = () => {
     socket.emit('newChannel', { name }, (response) => {
       console.log('newChannel RESPONSE STATUS', response); // ok
       setCurrChannelId(response.data.id);
+      notify(t('channelCreated'));
     });
   };
   const handleRemoveChannel = (id) => {
     socket.emit('removeChannel', { id }, (response) => {
       console.log('removeChannel RESPONSE STATUS', response); // ok
       setCurrChannelId(1);
+      notify(t('channelRemoved'));
     });
   };
   const handleRenameChannel = (id, name) => {
@@ -140,6 +139,7 @@ const MainPage = () => {
     if (isNameAlreadyExist) return;
     socket.emit('renameChannel', { id, name }, (response) => {
       console.log('renameChannel RESPONSE STATUS', response); // ok
+      notify(t('channelRenamed'));
     });
   };
 
