@@ -14,7 +14,7 @@ import instance from './i18nInstance.js';
 
 import UserContext from './contexts/UserContext.js';
 // import App from './components/App.jsx';
-import ChatPage from './ChatPage.jsx';
+import ChatPage from './components/ChatPage.jsx';
 import NotFound404 from './components/NotFound404.jsx';
 import LoginPage from './components/LoginPage.jsx';
 import RegistrationPage from './components/RegistrationPage.jsx';
