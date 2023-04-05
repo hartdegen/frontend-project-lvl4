@@ -1,18 +1,20 @@
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 
-import { I18nextProvider } from 'react-i18next';
-import instance from './i18nInstance.js';
-
 import { Provider as ProviderRollbar, ErrorBoundary } from '@rollbar/react';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { createContext } from 'react';
+import React from 'react';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-import App from './components/App.jsx';
+import { I18nextProvider } from 'react-i18next';
+import instance from './i18nInstance.js';
+
+import UserContext from './contexts/UserContext.js';
+// import App from './components/App.jsx';
+import ChatPage from './ChatPage.jsx';
 import NotFound404 from './components/NotFound404.jsx';
 import LoginPage from './components/LoginPage.jsx';
 import RegistrationPage from './components/RegistrationPage.jsx';
@@ -24,12 +26,11 @@ const rollbarConfig = {
   environment: 'testenv',
 };
 
-export const UserContext = createContext();
 const isAuth = () => localStorage.getItem('token') !== null;
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />,
+    element: <ChatPage />,
     errorElement: <NotFound404 />,
     // children: [
     //     {

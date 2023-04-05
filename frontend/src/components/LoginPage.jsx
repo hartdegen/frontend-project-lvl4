@@ -5,17 +5,17 @@ import Form from 'react-bootstrap/Form';
 import { useTranslation } from 'react-i18next';
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
-import { UserContext } from '../index.js';
+import UserContext from '../contexts/UserContext';
 
 const LoginPage = () => {
   const { t } = useTranslation();
   const isAuth = useContext(UserContext);
   const [authError, setAuthError] = useState();
-  const [username, setUsername] = useState('');
+  const [nick, setNick] = useState('');
   const [password, setPassword] = useState('');
-  const changeUsername = (e) => setUsername(e.target.value);
+  const changeNick = (e) => setNick(e.target.value);
   const changePassword = (e) => setPassword(e.target.value);
-  const values = { username, password };
+  const values = { username: nick, password };
   const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,9 +29,9 @@ const LoginPage = () => {
       navigate('/');
     } catch (err) {
       console.error('ERROR CATCH', err);
-      err.response.statusText === 'Unauthorized'
-        ? setAuthError(t('wrongUsernamePassword'))
-        : setAuthError(`${err.message} - ${err.response.statusText}`);
+      const error = err.response.statusText === 'Unauthorized'
+        ? t('wrongUsernamePassword') : `${err.message} - ${err.response.statusText}`;
+      setAuthError(error);
     }
   };
 
@@ -46,8 +46,8 @@ const LoginPage = () => {
             type="text"
             placeholder={t('yourNick')}
             id="username"
-            onChange={changeUsername}
-            value={username}
+            onChange={changeNick}
+            value={nick}
           />
           <Form.Label htmlFor="username">{t('yourNick')}</Form.Label>
         </Form.Floating>

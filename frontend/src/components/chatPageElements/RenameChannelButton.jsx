@@ -11,19 +11,19 @@ const RenameChannelButton = ({ channel, handleRenameChannel }) => {
   const { t } = useTranslation();
   const [newChannelName, setNewChannelName] = useState(name);
   const changeNewChannelName = (e) => setNewChannelName(e.target.value);
+
+  const [show, setShow] = useState(null);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
   const handleSubmitDropdownModal = (e) => {
     e.preventDefault();
     handleRenameChannel(id, newChannelName);
     handleClose();
   };
-
-  const [show, setShow] = useState(null);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
   return (
     <>
       {/* <Dropdown.Item onClick={handleShow}>{t("rename")}</Dropdown.Item>
-            autoFocus noy working with Dropdown.Item */}
+            autoFocus not working with Dropdown.Item */}
       <Button variant="light" onClick={handleShow}>
         {t('rename')}
       </Button>

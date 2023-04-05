@@ -9,16 +9,16 @@ const AddChannelButton = ({ handleNewChannel }) => {
   const { t } = useTranslation();
   const [newChannelName, setNewChannelName] = useState('');
   const changeNewChannelName = (e) => setNewChannelName(e.target.value);
+
+  const [show, setShow] = useState(null);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
   const handleSubmitDropdownModal = (e) => {
     e.preventDefault();
     handleNewChannel(newChannelName);
     setNewChannelName('');
     handleClose();
   };
-
-  const [show, setShow] = useState(null);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
   return (
     <>
       <Button variant="primary" onClick={handleShow}>
