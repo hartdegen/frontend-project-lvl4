@@ -5,11 +5,11 @@ import Form from 'react-bootstrap/Form';
 import { useTranslation } from 'react-i18next';
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
-import UserContext from '../contexts/UserContext';
+import AuthContext from '../contexts/AuthContext';
 
 const LoginPage = () => {
   const { t } = useTranslation();
-  const isAuth = useContext(UserContext);
+  const { isAuth } = useContext(AuthContext);
   const [authError, setAuthError] = useState();
   const [nick, setNick] = useState('');
   const [password, setPassword] = useState('');

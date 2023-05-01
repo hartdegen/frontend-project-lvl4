@@ -9,38 +9,35 @@ import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-import { I18nextProvider } from 'react-i18next';
-import instance from './i18nInstance.js';
+import i18n from 'i18next';
+import './i18n';
 
-import UserContext from './contexts/UserContext.js';
+import { AuthProvider } from './contexts/AuthContext.js';
+import { SocketProvider } from './contexts/SocketContext.js';
+
 // import App from './components/App.jsx';
 import ChatPage from './components/ChatPage.jsx';
 import NotFound404 from './components/NotFound404.jsx';
 import LoginPage from './components/LoginPage.jsx';
 import RegistrationPage from './components/RegistrationPage.jsx';
+import PrivateRoute from './components/PrivateRoute.jsx';
 
 import store from './slices/index.js';
+import paths from './routes.js';
 
 const rollbarConfig = {
-  // accessToken: "efc0d443c8a24fcdbbfddea533414883",
+  // accessToken: ${{ vars.ACCESSTOKEN }},
   environment: 'testenv',
 };
 
-const isAuth = () => localStorage.getItem('token') !== null;
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <ChatPage />,
+    element: <PrivateRoute><ChatPage /></PrivateRoute>,
     errorElement: <NotFound404 />,
-    // children: [
-    //     {
-    //         path: "/login",
-    //         element: <LoginPage/>
-    //     }
-    // ]
   },
-  { path: '/login', element: <LoginPage /> },
-  { path: '/signup', element: <RegistrationPage /> },
+  { path: paths.toLoginPage, element: <LoginPage /> },
+  { path: paths.toSignUpPage, element: <RegistrationPage /> },
 ]);
 
 const mountNode = document.getElementById('root');
@@ -50,16 +47,16 @@ root.render(
   <ProviderRollbar config={rollbarConfig}>
     <ErrorBoundary>
       <Provider store={store}>
-        <UserContext.Provider value={isAuth}>
-          <I18nextProvider i18n={instance}>
+        <AuthProvider>
+          <SocketProvider>
             <Navbar bg="light">
               <Container>
-                <Navbar.Brand href="/">Hexlet Chat</Navbar.Brand>
+                <Navbar.Brand href="/">{i18n.t('hexletChat')}</Navbar.Brand>
               </Container>
             </Navbar>
             <RouterProvider router={router} />
-          </I18nextProvider>
-        </UserContext.Provider>
+          </SocketProvider>
+        </AuthProvider>
       </Provider>
     </ErrorBoundary>
   </ProviderRollbar>,

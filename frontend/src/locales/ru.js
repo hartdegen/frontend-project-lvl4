@@ -13,6 +13,7 @@ const object = {
     deleteChannel: 'Удалить канал',
     error: 'Ошибка соединения',
     from3to20: 'От 3 до 20 символов',
+    hexletChat: 'Hexlet Chat',
     logOn: 'Войти',
     logOut: 'Выйти',
     min6Symbols: 'Не менее 6 символов',
