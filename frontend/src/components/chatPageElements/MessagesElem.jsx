@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -18,8 +18,19 @@ const MessagesElem = ({
 }) => {
   const { t } = useTranslation();
   const stateMessages = useSelector(messagesSelectors.selectAll);
+  const messageEl = useRef(null);
+
+  useEffect(() => {
+    // автопрокрутка сообщений к новым
+    if (messageEl) {
+      messageEl.current.addEventListener('DOMNodeInserted', (event) => {
+        const { currentTarget: target } = event;
+        target.scroll({ top: target.scrollHeight, behavior: 'smooth' });
+      });
+    }
+  }, []);
   return (
-    <div className="messages flex-column">
+    <div className="messages flex-column" style={{ overflow: 'hidden' }}>
       {t('yourNick')}
       <b>{nickname}</b>
       <Form onSubmit={handleNewMessage}>
@@ -33,12 +44,13 @@ const MessagesElem = ({
           <Button type="submit">{t('send')}</Button>
         </InputGroup>
       </Form>
-      <ListGroup style={{ overflowWrap: 'break-word' }}>
+      <ListGroup
+        style={{ overflowY: 'auto', width: '350px', height: '450px' }}
+        ref={messageEl}
+      >
         {stateMessages
           .filter((message) => currChannelId === message.channelId)
-          .map((message) => (
-            <ListGroup.Item key={message.id}>{message.body}</ListGroup.Item>
-          ))}
+          .map((message) => (<ListGroup.Item key={message.id}>{message.body}</ListGroup.Item>))}
       </ListGroup>
     </div>
   );

@@ -8,6 +8,8 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
 
 import i18n from 'i18next';
 import './i18n';
@@ -50,6 +52,7 @@ root.render(
         <AuthProvider>
           <SocketProvider>
             <Navbar bg="light">
+              <ToastContainer />
               <Container>
                 <Navbar.Brand href="/">{i18n.t('hexletChat')}</Navbar.Brand>
               </Container>

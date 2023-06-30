@@ -1,12 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import filter from 'leo-profanity';
-
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.min.css';
+import { toast } from 'react-toastify';
 
 import React, { useContext, useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import _ from 'lodash';
 
@@ -14,28 +12,23 @@ import AuthContext from '../contexts/AuthContext';
 import SocketContext from '../contexts/SocketContext';
 
 import {
-  selectors as channelsSelectors,
-  addChannels,
-  addChannel,
-  removeChannel,
-  renameChannel,
+  addChannels, addChannel, removeChannel, renameChannel,
 } from '../slices/channelsSlice.js';
 import { addMessages, addMessage } from '../slices/messagesSlice.js';
 
 import ChannelsElem from './chatPageElements/ChannelsElem.jsx';
 import MessagesElem from './chatPageElements/MessagesElem.jsx';
+import ModalWindow from './chatPageElements/ModalWindow.jsx';
 
 const MainPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [nickname, setNickname] = useState();
   const [messageText, setMessageText] = useState();
   const [currChannelId, setCurrChannelId] = useState();
-  const { logOut } = useContext(AuthContext);
-
   const { socket } = useContext(SocketContext);
-
-  const stateChannels = useSelector(channelsSelectors.selectAll);
+  const { logOut } = useContext(AuthContext);
 
   useEffect(() => {
     socket.on('newMessage', (message) => {
@@ -49,6 +42,7 @@ const MainPage = () => {
     socket.on('removeChannel', (channel) => {
       console.log('SOCKET.ON removeChannel', channel); // { id: 6 }
       dispatch(removeChannel(channel.id));
+      setCurrChannelId((currId) => (currId === channel.id ? 1 : currId));
     });
     socket.on('renameChannel', (channel) => {
       console.log('SOCKET.ON renameChannel', channel); // { id: 7, name: "new name channel", removable: true }
@@ -75,6 +69,12 @@ const MainPage = () => {
         console.log('useEffect, messages', messages);
       } catch (err) {
         console.error('ERROR CATCH', err);
+        console.error('ERROR CODE', err.response.status);
+        if (err.response.status === 401) {
+          toast(t('wrongUsernamePassword'));
+          logOut();
+          navigate('/login');
+        }
         toast(t('error'));
       }
     };
@@ -98,10 +98,6 @@ const MainPage = () => {
     });
   };
   const handleNewChannel = (name) => {
-    const isNameAlreadyExist = stateChannels.some(
-      (channel) => channel.name === name,
-    );
-    if (isNameAlreadyExist) return;
     socket.emit('newChannel', { name }, (response) => {
       console.log('newChannel RESPONSE STATUS', response); // ok
       setCurrChannelId(response.data.id);
@@ -111,15 +107,10 @@ const MainPage = () => {
   const handleRemoveChannel = (id) => {
     socket.emit('removeChannel', { id }, (response) => {
       console.log('removeChannel RESPONSE STATUS', response); // ok
-      setCurrChannelId(1);
       toast(t('channelRemoved'));
     });
   };
   const handleRenameChannel = (id, name) => {
-    const isNameAlreadyExist = stateChannels.some(
-      (channel) => channel.name === name,
-    );
-    if (isNameAlreadyExist) return;
     socket.emit('renameChannel', { id, name }, (response) => {
       console.log('renameChannel RESPONSE STATUS', response); // ok
       toast(t('channelRenamed'));
@@ -127,29 +118,22 @@ const MainPage = () => {
   };
 
   return (
-    <>
-      <ToastContainer />
-      <div className="chatPage d-flex">
-        <Link onClick={logOut} to="/login">
-          {t('logOut')}
-        </Link>
-        <br />
-        <ChannelsElem
-          handleNewChannel={handleNewChannel}
-          setCurrChannelId={setCurrChannelId}
-          handleRemoveChannel={handleRemoveChannel}
-          handleRenameChannel={handleRenameChannel}
-        />
-
-        <MessagesElem
-          nickname={nickname}
-          currChannelId={currChannelId}
-          messageText={messageText}
-          handleNewMessage={handleNewMessage}
-          changeMessageText={changeMessageText}
-        />
-      </div>
-    </>
+    <div className="chatPage d-flex">
+      <Link onClick={logOut} to="/login">{t('logOut')}</Link>
+      <ChannelsElem setCurrChannelId={setCurrChannelId} currChannelId={currChannelId} />
+      <MessagesElem
+        nickname={nickname}
+        currChannelId={currChannelId}
+        messageText={messageText}
+        handleNewMessage={handleNewMessage}
+        changeMessageText={changeMessageText}
+      />
+      <ModalWindow
+        handleRemoveChannel={handleRemoveChannel}
+        handleRenameChannel={handleRenameChannel}
+        handleNewChannel={handleNewChannel}
+      />
+    </div>
   );
 };
 

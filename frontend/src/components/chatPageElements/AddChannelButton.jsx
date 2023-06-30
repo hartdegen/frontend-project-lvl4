@@ -1,70 +1,18 @@
-import React, { useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
+import React from 'react';
+import { useDispatch } from 'react-redux';
 import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-
 import { useTranslation } from 'react-i18next';
+import { toggleModalAddChannel } from '../../slices/modalSlice.js';
 
-const AddChannelButton = ({ handleNewChannel }) => {
+const AddChannelButton = () => {
   const { t } = useTranslation();
-  const [newChannelName, setNewChannelName] = useState('');
-  const changeNewChannelName = (e) => setNewChannelName(e.target.value);
-
-  const [show, setShow] = useState(null);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-  const handleSubmitDropdownModal = (e) => {
-    e.preventDefault();
-    handleNewChannel(newChannelName);
-    setNewChannelName('');
-    handleClose();
-  };
+  const dispatch = useDispatch();
+  const toggleHandler = () => dispatch(toggleModalAddChannel());
   return (
-    <>
-      <Button variant="primary" onClick={handleShow}>
-        +
-      </Button>
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>{t('addNewChannel')}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={(e) => handleSubmitDropdownModal(e)}>
-            <Form.Group>
-              <Form.Control
-                autoFocus
-                id="name"
-                type="text"
-                placeholder={t('setNewChannelName')}
-                value={newChannelName}
-                onChange={changeNewChannelName}
-              />
-              <Form.Label
-                className="visually-hidden"
-                htmlFor="name"
-              >
-                {t('channelName')}
-              </Form.Label>
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            {t('cancel')}
-          </Button>
-          <Button
-            variant="danger"
-            type="submit"
-            onClick={(e) => {
-              handleSubmitDropdownModal(e);
-              handleClose();
-            }}
-          >
-            {t('send')}
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </>
+    <Button variant="primary" onClick={() => toggleHandler()}>
+      {t('createChannel')}
+    </Button>
+
   );
 };
 

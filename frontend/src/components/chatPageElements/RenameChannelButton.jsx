@@ -1,74 +1,16 @@
-import React, { useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-// import Dropdown from "react-bootstrap/Dropdown";
-import Form from 'react-bootstrap/Form';
-
+import { useDispatch } from 'react-redux';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { useTranslation } from 'react-i18next';
+import { toggleModalRename } from '../../slices/modalSlice.js';
 
-const RenameChannelButton = ({ channel, handleRenameChannel }) => {
-  const { id, name } = channel;
+const RenameChannelButton = ({ id }) => {
   const { t } = useTranslation();
-  const [newChannelName, setNewChannelName] = useState(name);
-  const changeNewChannelName = (e) => setNewChannelName(e.target.value);
-
-  const [show, setShow] = useState(null);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-  const handleSubmitDropdownModal = (e) => {
-    e.preventDefault();
-    handleRenameChannel(id, newChannelName);
-    handleClose();
-  };
+  const dispatch = useDispatch();
+  const toggleHandler = () => dispatch(toggleModalRename(id));
   return (
-    <>
-      {/* <Dropdown.Item onClick={handleShow}>{t("rename")}</Dropdown.Item>
-            autoFocus not working with Dropdown.Item */}
-      <Button variant="light" onClick={handleShow}>
-        {t('rename')}
-      </Button>
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>{t('renameChannel')}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={(e) => handleSubmitDropdownModal(e)}>
-            <Form.Group>
-              <Form.Control
-                autoFocus
-                id="channelName"
-                type="text"
-                placeholder={t('setNewChannelName')}
-                value={newChannelName}
-                onChange={changeNewChannelName}
-              />
-              <Form.Label
-                className="visually-hidden"
-                htmlFor="channelName"
-              >
-                {t('channelName')}
-              </Form.Label>
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            {t('cancel')}
-          </Button>
-          <Button
-            variant="danger"
-            type="submit"
-            onClick={(e) => {
-              handleSubmitDropdownModal(e);
-              handleClose();
-            }}
-          >
-            {t('send')}
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </>
+    <Dropdown.Item onClick={() => toggleHandler()}>
+      {t('rename')}
+    </Dropdown.Item>
   );
 };
-
 export default RenameChannelButton;

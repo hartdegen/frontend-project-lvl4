@@ -10,6 +10,7 @@ import * as Yup from 'yup';
 
 const RegistrationPage = () => {
   const [authError, setAuthError] = useState();
+  const [submitDisabled, setSubmitDisabled] = useState();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const formik = useFormik({
@@ -33,6 +34,7 @@ const RegistrationPage = () => {
     }),
     onSubmit: async (values) => {
       setAuthError('');
+      setSubmitDisabled(true);
       try {
         const {
           data: { token, username },
@@ -43,6 +45,7 @@ const RegistrationPage = () => {
       } catch (err) {
         console.error('ERROR CATCH', err);
         setAuthError(`${err.message} - ${err.response.statusText}`);
+        setSubmitDisabled(false);
       }
     },
   });
@@ -55,9 +58,7 @@ const RegistrationPage = () => {
           type="text"
           placeholder={t('username')}
           id="username"
-          isInvalid={
-                        formik.touched.username && formik.errors.username
-                    }
+          isInvalid={formik.touched.username && formik.errors.username}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.username}
@@ -73,9 +74,7 @@ const RegistrationPage = () => {
           type="password"
           placeholder={t('password')}
           id="password"
-          isInvalid={
-                        formik.touched.password && formik.errors.password
-                    }
+          isInvalid={formik.touched.password && formik.errors.password}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.password}
@@ -104,7 +103,7 @@ const RegistrationPage = () => {
         </Form.Control.Feedback>
       </Form.Floating>
       <br />
-      <Button type="submit">{t('signUp')}</Button>
+      <Button type="submit" disabled={submitDisabled}>{t('signUp')}</Button>
       {authError && <div style={{ color: 'red' }}>{authError}</div>}
     </Form>
   );

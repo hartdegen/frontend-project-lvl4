@@ -13,46 +13,28 @@ import AddChannelButton from './AddChannelButton.jsx';
 
 import { selectors as channelsSelectors } from '../../slices/channelsSlice.js';
 
-const ChannelsElem = ({
-  handleNewChannel,
-  setCurrChannelId,
-  handleRemoveChannel,
-  handleRenameChannel,
-}) => {
+const ChannelsElem = ({ setCurrChannelId, currChannelId }) => {
   const { t } = useTranslation();
   const stateChannels = useSelector(channelsSelectors.selectAll);
   return (
     <div className="channels flex-column">
-      <AddChannelButton handleNewChannel={handleNewChannel} />
-      <ListGroup defaultActiveKey="#link1">
+      <AddChannelButton />
+      <ListGroup defaultActiveKey={`#link${currChannelId}`}>
         {stateChannels.map((channel) => (
-          <ListGroup.Item key={channel.id} href={`#link${channel.id}`}>
+          <ListGroup.Item key={channel.id} href={`#link${channel.id}`} active={currChannelId === channel.id}>
             <Dropdown as={ButtonGroup} className="d-flex">
-              <Button
-                onClick={() => {
-                  setCurrChannelId(channel.id);
-                }}
-                style={{ overflow: 'hidden' }}
-              >
+              <Button onClick={() => { setCurrChannelId(channel.id); }} style={{ overflow: 'hidden' }}>
                 {`#${channel.name}`}
               </Button>
 
               {channel.removable && (
                 <>
                   <Dropdown.Toggle>
-                    <span className="visually-hidden">
-                      {t('channelControl')}
-                    </span>
+                    <span className="visually-hidden">{t('channelControl')}</span>
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <RemoveChannelButton
-                      channelId={channel.id}
-                      handleRemoveChannel={handleRemoveChannel}
-                    />
-                    <RenameChannelButton
-                      channel={channel}
-                      handleRenameChannel={handleRenameChannel}
-                    />
+                    <RemoveChannelButton id={channel.id} />
+                    <RenameChannelButton id={channel.id} />
                   </Dropdown.Menu>
                 </>
               )}
