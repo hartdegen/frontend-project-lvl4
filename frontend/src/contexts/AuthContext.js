@@ -1,9 +1,9 @@
 import { createContext } from 'react';
 
 const AuthContext = createContext();
-
 const values = {
-  isAuth: () => localStorage.getItem('token') !== null,
+  getToken: () => localStorage.getItem('token'),
+  isSignedIn: () => localStorage.getItem('token') !== null,
   logIn: () => {},
   logOut: () => {
     localStorage.removeItem('token');

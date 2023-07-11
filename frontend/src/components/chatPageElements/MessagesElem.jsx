@@ -29,6 +29,7 @@ const MessagesElem = ({
       });
     }
   }, []);
+
   return (
     <div className="messages flex-column" style={{ overflow: 'hidden' }}>
       {t('yourNick')}

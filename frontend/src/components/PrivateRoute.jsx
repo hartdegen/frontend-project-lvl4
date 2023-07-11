@@ -3,9 +3,9 @@ import { Navigate } from 'react-router-dom';
 import AuthContext from '../contexts/AuthContext';
 
 const PrivateRoute = ({ children }) => {
-  const { isAuth } = useContext(AuthContext);
+  const { isSignedIn } = useContext(AuthContext);
 
-  if (isAuth()) {
+  if (isSignedIn()) {
     return children;
   }
 

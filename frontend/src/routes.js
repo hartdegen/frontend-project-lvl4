@@ -1,6 +1,7 @@
 const paths = {
+  toChatPage: '/',
   toLoginPage: '/login',
-  toSignUpPage: '/signup',
+  toRegistrationPage: '/signup',
 };
 
 export default paths;

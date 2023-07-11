@@ -11,10 +11,8 @@ import _ from 'lodash';
 import AuthContext from '../contexts/AuthContext';
 import SocketContext from '../contexts/SocketContext';
 
-import {
-  addChannels, addChannel, removeChannel, renameChannel,
-} from '../slices/channelsSlice.js';
-import { addMessages, addMessage } from '../slices/messagesSlice.js';
+import { addChannels } from '../slices/channelsSlice.js';
+import { addMessages } from '../slices/messagesSlice.js';
 
 import ChannelsElem from './chatPageElements/ChannelsElem.jsx';
 import MessagesElem from './chatPageElements/MessagesElem.jsx';
@@ -27,32 +25,14 @@ const MainPage = () => {
   const [nickname, setNickname] = useState();
   const [messageText, setMessageText] = useState();
   const [currChannelId, setCurrChannelId] = useState();
-  const { socket } = useContext(SocketContext);
+  const {
+    createOngoingDataUpdating, sendNewMessage,
+    createNewChannel, removeCurrentChannel, renameCurrentChannel,
+  } = useContext(SocketContext);
   const { logOut } = useContext(AuthContext);
 
   useEffect(() => {
-    socket.on('newMessage', (message) => {
-      console.log('SOCKET.ON newMessage', message); // => { body: "new message", channelId: 7, id: 8, username: "admin" }
-      dispatch(addMessage(message));
-    });
-    socket.on('newChannel', (channel) => {
-      console.log('SOCKET.ON newChannel', channel); // { id: 6, name: "new channel", removable: true }
-      dispatch(addChannel(channel));
-    });
-    socket.on('removeChannel', (channel) => {
-      console.log('SOCKET.ON removeChannel', channel); // { id: 6 }
-      dispatch(removeChannel(channel.id));
-      setCurrChannelId((currId) => (currId === channel.id ? 1 : currId));
-    });
-    socket.on('renameChannel', (channel) => {
-      console.log('SOCKET.ON renameChannel', channel); // { id: 7, name: "new name channel", removable: true }
-      dispatch(
-        renameChannel({
-          id: channel.id,
-          changes: { name: channel.name },
-        }),
-      );
-    });
+    createOngoingDataUpdating(dispatch, setCurrChannelId);
     const updateData = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -92,29 +72,20 @@ const MainPage = () => {
       username: nickname,
       body: `${time} ${nickname}: ${filter.clean(messageText)}`,
     };
-    socket.emit('newMessage', message, (response) => {
-      console.log('newMessage RESPONSE STATUS', response); // ok
-      setMessageText('');
-    });
+    sendNewMessage(message);
+    setMessageText('');
   };
   const handleNewChannel = (name) => {
-    socket.emit('newChannel', { name }, (response) => {
-      console.log('newChannel RESPONSE STATUS', response); // ok
-      setCurrChannelId(response.data.id);
-      toast(t('channelCreated'));
-    });
+    createNewChannel(name, setCurrChannelId);
+    toast(t('channelCreated'));
   };
   const handleRemoveChannel = (id) => {
-    socket.emit('removeChannel', { id }, (response) => {
-      console.log('removeChannel RESPONSE STATUS', response); // ok
-      toast(t('channelRemoved'));
-    });
+    removeCurrentChannel(id);
+    toast(t('channelRemoved'));
   };
   const handleRenameChannel = (id, name) => {
-    socket.emit('renameChannel', { id, name }, (response) => {
-      console.log('renameChannel RESPONSE STATUS', response); // ok
-      toast(t('channelRenamed'));
-    });
+    renameCurrentChannel(id, name);
+    toast(t('channelRenamed'));
   };
 
   return (

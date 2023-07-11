@@ -22,7 +22,6 @@ const ModalWindow = ({ handleRemoveChannel, handleRenameChannel, handleNewChanne
   const toggleHandlerAdd = () => dispatch(toggleModalAddChannel());
   const whichModalShown = useSelector((state) => state.modal.whichModalShown);
   const currChannelId = useSelector((state) => state.modal.channelId);
-  console.log(11111, currChannelId);
   const formikRename = useFormik({
     initialValues: { newChannelName: '' },
     validationSchema: Yup.object({
@@ -92,8 +91,8 @@ const ModalWindow = ({ handleRemoveChannel, handleRenameChannel, handleNewChanne
                 id="newChannelName"
                 type="text"
                 placeholder={t('setNewChannelName')}
-                // eslint-disable-next-line max-len
-                isInvalid={formikRename.touched.newChannelName && formikRename.errors.newChannelName}
+                isInvalid={formikRename.touched.newChannelName
+                   && formikRename.errors.newChannelName}
                 onChange={formikRename.handleChange}
                 onBlur={formikRename.handleBlur}
                 value={formikRename.values.newChannelName}

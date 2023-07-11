@@ -11,7 +11,7 @@ import * as Yup from 'yup';
 import AuthContext from '../contexts/AuthContext';
 
 const LoginPage = () => {
-  const { isAuth } = useContext(AuthContext);
+  const { isSignedIn } = useContext(AuthContext);
   const [authError, setAuthError] = useState();
   const [submitDisabled, setSubmitDisabled] = useState();
   const { t } = useTranslation();
@@ -23,11 +23,8 @@ const LoginPage = () => {
     },
     validationSchema: Yup.object({
       username: Yup.string()
-        .min(3, `${t('from3to20')}`)
-        .max(20, `${t('from3to20')}`)
         .required(`${t('required')}`),
       password: Yup.string()
-        .min(5, `${t('min6Symbols')}`)
         .required(`${t('required')}`),
     }),
     onSubmit: async (values) => {
@@ -42,15 +39,14 @@ const LoginPage = () => {
         navigate('/');
       } catch (err) {
         console.error('ERROR CATCH', err);
-        const error = err.response.statusText === 'Unauthorized'
-          ? t('wrongUsernamePassword') : `${err.message} - ${err.response.statusText}`;
+        const error = err.response.statusText === 'Unauthorized' ? t('wrongUsernamePassword') : `${err.message} - ${err.response.statusText}`;
         setAuthError(error);
         setSubmitDisabled(false);
       }
     },
   });
 
-  return isAuth() ? (
+  return isSignedIn() ? (
     <Navigate to="/" />
   ) : (
     <>
