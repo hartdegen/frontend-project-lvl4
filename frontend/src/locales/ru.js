@@ -9,7 +9,7 @@ const object = {
     channelRemoved: 'Канал удалён',
     channelRenamed: 'Канал переименован',
     confirmPassword: 'Подтвердите пароль',
-    createChannel: 'Создать канал',
+    createChannel: '+',
     delete: 'Удалить',
     deleteChannel: 'Удалить канал',
     error: 'Ошибка соединения',

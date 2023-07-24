@@ -9,7 +9,7 @@ const object = {
     channelRemoved: 'Channel was removed',
     channelRenamed: 'Channel was renamed',
     confirmPassword: 'Confirm Password',
-    createChannel: 'Create channel',
+    createChannel: '+',
     delete: 'Delete',
     deleteChannel: 'Delete channel',
     error: 'Something is wrong, check connection',
