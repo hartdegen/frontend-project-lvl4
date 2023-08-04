@@ -16,12 +16,12 @@ import paths from '../routes.js';
 
 const router = createBrowserRouter([
   {
-    path: paths.toChatPage,
+    path: paths.mainPage,
     element: <PrivateRoute><ChatPage /></PrivateRoute>,
     errorElement: <NotFound404 />,
   },
-  { path: paths.toLoginPage, element: <LoginPage /> },
-  { path: paths.toRegistrationPage, element: <RegistrationPage /> },
+  { path: paths.loginPage, element: <LoginPage /> },
+  { path: paths.signupPage, element: <RegistrationPage /> },
 ]);
 
 const App = () => (
@@ -29,7 +29,7 @@ const App = () => (
     <Navbar bg="light">
       <ToastContainer />
       <Container>
-        <Navbar.Brand href="/">{i18n.t('hexletChat')}</Navbar.Brand>
+        <Navbar.Brand href={paths.mainPage}>{i18n.t('hexletChat')}</Navbar.Brand>
       </Container>
     </Navbar>
     <RouterProvider router={router} />

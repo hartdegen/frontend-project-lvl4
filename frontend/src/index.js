@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { io } from 'socket.io-client';
 import { Provider as ProviderRollbar, ErrorBoundary } from '@rollbar/react';
 import { Provider } from 'react-redux';
 import { AuthProvider } from './contexts/AuthContext.js';
@@ -14,12 +15,14 @@ const rollbarConfig = {
 
 const mountNode = document.getElementById('root');
 const root = ReactDOM.createRoot(mountNode);
+const socket = io();
+
 root.render(
   <ProviderRollbar config={rollbarConfig}>
     <ErrorBoundary>
       <Provider store={store}>
         <AuthProvider>
-          <SocketProvider>
+          <SocketProvider socket={socket}>
             <App />
           </SocketProvider>
         </AuthProvider>

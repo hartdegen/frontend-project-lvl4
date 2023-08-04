@@ -1,22 +1,14 @@
-import { useTranslation } from 'react-i18next';
 import React from 'react';
-import { Link, useRouteError } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import paths from '../routes.js';
 
 const NotFound404 = () => {
   const { t } = useTranslation();
-  const error = useRouteError();
-  console.error(error);
-
   return (
     <>
-      <p>
-        {t('pageNotExist')}
-        <br />
-        <Link to="/">{t('toMainPage')}</Link>
-      </p>
-      <p>
-        <i>{error.statusText || error.message}</i>
-      </p>
+      <h1>{t('pageNotExist')}</h1>
+      <Link to={paths.mainPage}>{t('toMainPage')}</Link>
     </>
   );
 };

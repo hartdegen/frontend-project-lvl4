@@ -5,7 +5,6 @@ import modalReducer from './modalSlice.js';
 
 export default configureStore({
   reducer: {
-    // channels – имя внутри объекта состояния state.channels
     channels: channelsReducer,
     messages: messagesReducer,
     modal: modalReducer,

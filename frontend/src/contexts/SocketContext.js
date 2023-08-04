@@ -1,62 +1,42 @@
 import { createContext } from 'react';
-import { io } from 'socket.io-client';
 import { addChannel, removeChannel, renameChannel } from '../slices/channelsSlice.js';
 import { addMessage } from '../slices/messagesSlice.js';
 
 const SocketContext = createContext();
-const socket = io();
-const values = {
-  createOngoingDataUpdating: (dispatch, setCurrChannelId) => {
-    socket.on('newMessage', (message) => {
-      console.log('SOCKET.ON newMessage', message); // => { body: "new message", channelId: 7, id: 8, username: "admin" }
-      dispatch(addMessage(message));
-    });
-    socket.on('newChannel', (channel) => {
-      console.log('SOCKET.ON newChannel', channel); // { id: 6, name: "new channel", removable: true }
-      dispatch(addChannel(channel));
-    });
+const createValues = (socket) => ({
+  enableDataAutoUpdate: (dispatch, setCurrChannelId) => {
+    socket.on('newMessage', (message) => dispatch(addMessage(message)));
+    socket.on('newChannel', (channel) => dispatch(addChannel(channel)));
+    socket.on('renameChannel', (channel) => dispatch(renameChannel({ id: channel.id, changes: { name: channel.name } })));
     socket.on('removeChannel', (channel) => {
-      console.log('SOCKET.ON removeChannel', channel); // { id: 6 }
       dispatch(removeChannel(channel.id));
-      // как по-другому переключать на дефолтный канал всех пользователей при удалении активного?
-      // если не здесь
       setCurrChannelId((currId) => (currId === channel.id ? 1 : currId));
     });
-    socket.on('renameChannel', (channel) => {
-      console.log('SOCKET.ON renameChannel', channel); // { id: 7, name: "new name channel", removable: true }
-      dispatch(
-        renameChannel({
-          id: channel.id,
-          changes: { name: channel.name },
-        }),
-      );
-    });
+    socket.on('connect_error', (err) => console.error('socket.on(connect_error)\n', err.message));
   },
-  sendNewMessage: (message) => {
-    socket.emit('newMessage', message, (response) => {
-      console.log('newMessage RESPONSE STATUS', response);
-    });
-  },
-  createNewChannel: (name, setCurrChannelId) => {
+  createNewChannel: async (setCurrChannelId, name) => new Promise((resolve, reject) => {
     socket.emit('newChannel', { name }, (response) => {
-      console.log('newChannel RESPONSE STATUS', response);
       setCurrChannelId(response.data.id);
+      resolve(response);
     });
-  },
-  removeCurrentChannel: (id) => {
-    socket.emit('removeChannel', { id }, (response) => {
-      console.log('removeChannel RESPONSE STATUS', response);
-    });
-  },
-  renameCurrentChannel: (id, name) => {
-    socket.emit('renameChannel', { id, name }, (response) => {
-      console.log('renameChannel RESPONSE STATUS', response);
-    });
-  },
-};
+    setTimeout(() => reject(new Error('socket.emit(newChannel) - timeout error')), 3000);
+  }),
+  renameCurrentChannel: async (id, name) => new Promise((resolve, reject) => {
+    socket.emit('renameChannel', { id, name }, (response) => resolve(response));
+    setTimeout(() => reject(new Error('socket.emit(renameChannel) - timeout error')), 3000);
+  }),
+  removeCurrentChannel: async (id) => new Promise((resolve, reject) => {
+    socket.emit('removeChannel', { id }, (response) => resolve(response));
+    setTimeout(() => reject(new Error('socket.emit(removeChannel) - timeout error')), 3000);
+  }),
+  sendNewMessage: async (message) => new Promise((resolve, reject) => {
+    socket.emit('newMessage', message, (response) => resolve(response));
+    setTimeout(() => reject(new Error('socket.emit(sendNewMessage) - timeout error')), 3000);
+  }),
+});
 
-export const SocketProvider = ({ children }) => (
-  <SocketContext.Provider value={values}>{children}</SocketContext.Provider>
+export const SocketProvider = ({ children, socket }) => (
+  <SocketContext.Provider value={createValues(socket)}>{children}</SocketContext.Provider>
 );
 
 export default SocketContext;
