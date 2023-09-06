@@ -1,6 +1,4 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import AuthContext from '../contexts/AuthContext';
@@ -13,7 +11,6 @@ import ModalWindow from './chatPageElements/ModalWindow.jsx';
 import paths from '../routes.js';
 
 const ChatPage = () => {
-  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [currChannelId, setCurrChannelId] = useState();
   const { enableDataAutoUpdate } = useContext(SocketContext);
@@ -36,8 +33,7 @@ const ChatPage = () => {
   }, []);
 
   return (
-    <div className="chatPage d-flex">
-      <Link onClick={logOut} to={paths.loginPage}>{t('logOut')}</Link>
+    <div className="chatPage d-flex justify-content-center">
       <ChannelsElem setCurrChannelId={setCurrChannelId} currChannelId={currChannelId} />
       <MessagesElem currChannelId={currChannelId} />
       <ModalWindow setCurrChannelId={setCurrChannelId} />

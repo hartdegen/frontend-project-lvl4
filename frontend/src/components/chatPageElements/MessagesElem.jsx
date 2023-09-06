@@ -34,6 +34,7 @@ const MessagesElem = ({ currChannelId }) => {
     try {
       await sendNewMessage(message);
       setMessageText('');
+      setSubmitDisabled(false);
     } catch (error) {
       console.error('MessagesElem submit error', error);
       setSubmitDisabled(false);
@@ -51,19 +52,18 @@ const MessagesElem = ({ currChannelId }) => {
   }, []);
 
   return (
-    <div className="messages flex-column" style={{ overflow: 'hidden' }}>
-      {`${t('yourNick')} ${getUsername()}`}
+    <div className="messages border">
+      <ListGroup className="autoScrollSettings" ref={messageEl}>
+        {stateMessages
+          .filter((message) => currChannelId === message.channelId)
+          .map((message) => (<ListGroup.Item key={message.id}>{message.body}</ListGroup.Item>))}
+      </ListGroup>
       <Form onSubmit={submitMessage}>
         <InputGroup>
           <Form.Control placeholder={t('typeMessage')} aria-label="Новое сообщение" value={messageText} onChange={changeMessageText} />
           <Button type="submit" disabled={submitDisabled}>{t('send')}</Button>
         </InputGroup>
       </Form>
-      <ListGroup style={{ overflowY: 'auto', width: '350px', height: '450px' }} ref={messageEl}>
-        {stateMessages
-          .filter((message) => currChannelId === message.channelId)
-          .map((message) => (<ListGroup.Item key={message.id}>{message.body}</ListGroup.Item>))}
-      </ListGroup>
     </div>
   );
 };

@@ -1,0 +1,16 @@
+.channels {
+  flex-basis: 10%;
+  min-width: 200px;
+}
+
+.messages {
+  flex-basis: 50%;
+  min-width: 800px;
+}
+
+.autoScrollSettings {
+  overflow-y: auto;
+  overflow-wrap: break-word;
+  height: 600px;
+}
+

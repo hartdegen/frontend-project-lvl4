@@ -3,6 +3,7 @@ const object = {
     addNewChannel: 'Add New Channel',
     areYouSure: 'Are you sure?',
     cancel: 'Cancel',
+    channels: 'Channels',
     channelControl: 'Channel control',
     channelCreated: 'Channel was created',
     channelName: 'Channel name',

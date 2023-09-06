@@ -8,6 +8,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import AuthContext from '../contexts/AuthContext';
 import paths from '../routes.js';
+import '../index.css';
 
 const LoginPage = () => {
   const { logIn, isSignedIn } = useContext(AuthContext);
@@ -38,8 +39,8 @@ const LoginPage = () => {
   return isSignedIn()
     ? <Navigate to={paths.mainPage} />
     : (
-      <>
-        <Form onSubmit={formik.handleSubmit} style={{ width: '500px' }}>
+      <div className="loginPage w-25 p-3 border mx-auto">
+        <Form onSubmit={formik.handleSubmit}>
           <h1>{t('logOn')}</h1>
           <Form.Floating>
             <Form.Control type="text" placeholder={t('yourNick')} id="username" isInvalid={formik.touched.username && formik.errors.username} onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.username} />
@@ -53,14 +54,18 @@ const LoginPage = () => {
           <br />
           <Button type="submit" disabled={submitDisabled}>{t('logOn')}</Button>
           {error && <div style={{ color: 'red' }}>{error}</div>}
+
+          <br />
+
+          <span>
+            {t('noAccount')}
+            {' '}
+
+            <Link to={paths.signupPage}>{t('registration')}</Link>
+          </span>
         </Form>
-        <br />
-        <div>
-          <span>{t('noAccount')}</span>
-          {' '}
-          <Link to={paths.signupPage}>{t('registration')}</Link>
-        </div>
-      </>
+
+      </div>
     );
 };
 

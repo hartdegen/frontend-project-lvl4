@@ -14,16 +14,20 @@ const ChannelsElem = ({ setCurrChannelId, currChannelId }) => {
   const { t } = useTranslation();
   const stateChannels = useSelector(channelsSelectors.selectAll);
   return (
-    <div className="channels flex-column">
-      <AddChannelButton />
-      <ListGroup defaultActiveKey={`#link${currChannelId}`}>
+    <div className="channels border">
+      <div className="d-flex justify-content-between align-items-center">
+        {t('channels')}
+        <AddChannelButton />
+      </div>
+
+      <ListGroup className="autoScrollSettings" defaultActiveKey={`#link${currChannelId}`}>
         {stateChannels.map((channel) => (
           <ListGroup.Item key={channel.id} href={`#link${channel.id}`} active={currChannelId === channel.id}>
-            <Dropdown as={ButtonGroup} className="d-flex">
-              <Button onClick={() => { setCurrChannelId(channel.id); }} style={{ overflow: 'hidden' }}>{`#${channel.name}`}</Button>
+            <Dropdown className="d-flex" as={ButtonGroup}>
+              <Button className="d-flex justify-content-start overflow-hidden" onClick={() => { setCurrChannelId(channel.id); }}>{`#${channel.name}`}</Button>
               {channel.removable && (
                 <>
-                  <Dropdown.Toggle><span className="visually-hidden">{t('channelControl')}</span></Dropdown.Toggle>
+                  <Dropdown.Toggle className="flex-grow-0 bg-dark bg-gradient"><span className="visually-hidden">{t('channelControl')}</span></Dropdown.Toggle>
                   <Dropdown.Menu>
                     <RemoveChannelButton id={channel.id} />
                     <RenameChannelButton id={channel.id} />

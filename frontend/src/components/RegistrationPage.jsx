@@ -33,44 +33,82 @@ const RegistrationPage = () => {
       setError('');
       setSubmitDisabled(true);
       try {
-        const { data: { token, username } } = await axios.post(paths.backendSignup, values);
+        const {
+          data: { token, username },
+        } = await axios.post(paths.backendSignup, values);
         logIn(token, username);
       } catch (err) {
         console.error('ERROR CATCH RegistrationPage', err);
-        const errorMessage = err.message === 'Request failed with status code 409' ? t('userAlreadyExists') : err.message;
+        const errorMessage = err.message === 'Request failed with status code 409'
+          ? t('userAlreadyExists')
+          : err.message;
         setError(errorMessage);
         setSubmitDisabled(false);
       }
     },
   });
 
-  return isSignedIn()
-    ? <Navigate to={paths.mainPage} />
-    : (
-      <Form onSubmit={formik.handleSubmit} style={{ width: '500px' }}>
+  return isSignedIn() ? (
+    <Navigate to={paths.mainPage} />
+  ) : (
+    <div className="registrationPage w-25 p-3 border mx-auto">
+      <Form onSubmit={formik.handleSubmit}>
         <h1>{t('registration')}</h1>
         <Form.Floating>
-          <Form.Control type="text" placeholder={t('username')} id="username" isInvalid={formik.touched.username && formik.errors.username} onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.username} />
+          <Form.Control
+            type="text"
+            placeholder={t('username')}
+            id="username"
+            isInvalid={formik.touched.username && formik.errors.username}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.username}
+          />
           <Form.Label htmlFor="username">{t('username')}</Form.Label>
-          <Form.Control.Feedback type="invalid" tooltip>{formik.touched.username && formik.errors.username}</Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid" tooltip>
+            {formik.touched.username && formik.errors.username}
+          </Form.Control.Feedback>
         </Form.Floating>
         <br />
         <Form.Floating>
-          <Form.Control type="password" placeholder={t('password')} id="password" isInvalid={formik.touched.password && formik.errors.password} onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.password} />
+          <Form.Control
+            type="password"
+            placeholder={t('password')}
+            id="password"
+            isInvalid={formik.touched.password && formik.errors.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.password}
+          />
           <Form.Label htmlFor="password">{t('password')}</Form.Label>
-          <Form.Control.Feedback type="invalid" tooltip>{formik.touched.password && formik.errors.password}</Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid" tooltip>
+            {formik.touched.password && formik.errors.password}
+          </Form.Control.Feedback>
         </Form.Floating>
         <br />
         <Form.Floating>
-          <Form.Control type="password" placeholder={t('confirmPassword')} id="confirm" isInvalid={formik.touched.confirm && formik.errors.confirm} onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.confirm} />
+          <Form.Control
+            type="password"
+            placeholder={t('confirmPassword')}
+            id="confirm"
+            isInvalid={formik.touched.confirm && formik.errors.confirm}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.confirm}
+          />
           <Form.Label htmlFor="confirm">{t('confirmPassword')}</Form.Label>
-          <Form.Control.Feedback type="invalid" tooltip>{formik.touched.confirm && formik.errors.confirm}</Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid" tooltip>
+            {formik.touched.confirm && formik.errors.confirm}
+          </Form.Control.Feedback>
         </Form.Floating>
         <br />
-        <Button type="submit" disabled={submitDisabled}>{t('signUp')}</Button>
+        <Button type="submit" disabled={submitDisabled}>
+          {t('signUp')}
+        </Button>
         {error && <div style={{ color: 'red' }}>{error}</div>}
       </Form>
-    );
+    </div>
+  );
 };
 
 export default RegistrationPage;

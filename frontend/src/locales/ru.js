@@ -3,6 +3,7 @@ const object = {
     addNewChannel: 'Добавить новый канал',
     areYouSure: 'Уверены?',
     cancel: 'Отменить',
+    channels: 'Каналы',
     channelControl: 'Управление каналом',
     channelCreated: 'Канал создан',
     channelName: 'Имя Канала',
