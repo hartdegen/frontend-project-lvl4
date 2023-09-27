@@ -1,5 +1,5 @@
 # [Chat](https://chat-sxof.onrender.com/)
-https://chat-sxof.onrender.com
+https://chat-fx2f.onrender.com
 
 ## Setup
 

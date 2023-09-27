@@ -22,7 +22,7 @@ const ChannelsElem = ({ setCurrChannelId, currChannelId }) => {
 
       <ListGroup className="autoScrollSettings" defaultActiveKey={`#link${currChannelId}`}>
         {stateChannels.map((channel) => (
-          <ListGroup.Item key={channel.id} href={`#link${channel.id}`} active={currChannelId === channel.id}>
+          <ListGroup.Item key={channel.id} active={currChannelId === channel.id}>
             <Dropdown className="d-flex" as={ButtonGroup}>
               <Button className="d-flex justify-content-start overflow-hidden" onClick={() => { setCurrChannelId(channel.id); }}>{`#${channel.name}`}</Button>
               {channel.removable && (
@@ -43,3 +43,8 @@ const ChannelsElem = ({ setCurrChannelId, currChannelId }) => {
 };
 
 export default ChannelsElem;
+
+// eslint-disable-next-line max-len
+// <ListGroup.Item key={channel.id} href={`#link${channel.id}`} active={currChannelId === channel.id}>
+// there is problem with added href
+// Warning: `action=false` and `href` should not be used together.

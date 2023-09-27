@@ -9,7 +9,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import InputGroup from 'react-bootstrap/InputGroup';
-import AuthContext from '../../contexts/AuthContext';
+import useAuth from '../../hooks/useAuth.jsx';
 import SocketContext from '../../contexts/SocketContext';
 import { selectors as messagesSelectors } from '../../slices/messagesSlice.js';
 
@@ -18,7 +18,7 @@ const MessagesElem = ({ currChannelId }) => {
   const stateMessages = useSelector(messagesSelectors.selectAll);
   const messageEl = useRef(null);
   const { sendNewMessage } = useContext(SocketContext);
-  const { getUsername } = useContext(AuthContext);
+  const auth = useAuth();
   const [messageText, setMessageText] = useState();
   const [submitDisabled, setSubmitDisabled] = useState();
   const changeMessageText = (e) => setMessageText(e.target.value);
@@ -28,8 +28,8 @@ const MessagesElem = ({ currChannelId }) => {
     const message = {
       channelId: currChannelId,
       id: _.uniqueId(),
-      username: getUsername(),
-      body: `${getUsername()}: ${filter.clean(messageText)}`,
+      username: auth.getUsername(),
+      body: `${auth.getUsername()}: ${filter.clean(messageText)}`,
     };
     try {
       await sendNewMessage(message);
